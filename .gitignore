@@ -1,0 +1,11 @@
+# Ignore build files
+build/
+
+# Ignore Netbeans folder
+nbproject/
+
+# Ignore directory preference files created by OSX
+*.DS_Store
+
+# Ignore SFML in extlibs-folder FOR NOW. @TODO: try to have SFML in project folder?
+extlibs/SFML*
