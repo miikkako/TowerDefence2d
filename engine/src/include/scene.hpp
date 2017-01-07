@@ -4,6 +4,7 @@
 #include "gameobject.hpp"
 #include "usereventhandler.hpp"
 #include "soundhandler.hpp"
+#include "scenehandler.hpp"
 
 class Scene
 {
@@ -23,10 +24,14 @@ public:
     void update();
     void draw(sf::RenderWindow& window);
     
-    const std::string& getTitle() const { return title; };
-    const sf::Vector2u& getWindowSize() const { return windowSize; };
-        
+    AnimatedGameObject::TextureList* getAnimation(const std::string& animation_name);
+    const sf::Vector2u& getWindowSize()   const { return windowSize; };
+    const std::string&  getTitle()        const { return title; };
+    std::ostream& getOs() const;
+    
 protected:
+    virtual void updateSceneBehaviour() { }; // optional
+    
     sf::Vector2u windowSize;
     std::string  title;
     SceneHandler&                       sceneHandler;

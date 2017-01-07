@@ -47,9 +47,23 @@ void Scene::draw(sf::RenderWindow& window)
     }
 }
 
+std::ostream& Scene::getOs() const
+{
+    return sceneHandler.os;
+}
+
 void Scene::handleWindowEvent(sf::RenderWindow& w)
 {
     userEventHandler->handleWindowEvent(w);
+}
+
+AnimatedGameObject::TextureList* Scene::getAnimation(const std::string& animation_name)
+{
+    try{
+        return &animationMap.at(animation_name);
+    } catch (std::exception& e) {
+        throw std::invalid_argument("Animation" + animation_name + "' not found.");
+    }
 }
 
 sf::Texture Scene::loadTexture(const std::string& s)
