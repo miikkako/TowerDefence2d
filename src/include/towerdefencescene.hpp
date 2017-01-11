@@ -2,39 +2,46 @@
 #define TOWERDEFENCESCENE_HPP
 
 #include "scene.hpp"
+#include "map.hpp"
 
-#define ASSETS std::string("assets/")
-#define SPRITES ASSETS+"sprites/"
+class Enemy;
 
 class TowerDefenceScene : public Scene
 {
 public:
-    explicit TowerDefenceScene(SceneHandler& sh);
+    TowerDefenceScene(SceneHandler& sh, const std::string& map_name);
     TowerDefenceScene(const TowerDefenceScene&) = delete;
     TowerDefenceScene& operator=(const TowerDefenceScene&) = delete;
-
-    //std::shared_ptr<Tower>& getTowerStats(const std::string& towerName);
-    //std::vector<std::shared_ptr<Tower>>& getBaseTowers() const; 
     
-    //sf::SoundBuffer& getSoundBuffer(const std::string& sound_name);
-        
-    //AnimatedGameObject::TextureList& getAnimation(const std::string& animation_name);
+    //std::shared_ptr<Tower>& getTowerStats(const std::string& towerName);
+    //std::vector<std::shared_ptr<Tower>>& getBaseTowers() const;         
     
     //LevelHandler& levelHandler; // levelHandler handles spawning of Enemies!
     //
     //std::vector<std::shared_ptr<Tower>> baseTowerList;
+    void enemyThrough(Enemy* e);
+    Map* getMap() { return map.get(); };
     
-    bool         drawHealthBars;
-    bool         beginLevelsAutomatically;
-    float        towerResellValueMultiplier;
-    int          maxAllowedEnemiesTrough;
-    int          startingMoney;
+    bool           drawHealthBars;
+    sf::Color      healthBarColor;
+    sf::Vector2f   healthBarSize;
+    bool           beginLevelsAutomatically;
+    float          towerResellValueMultiplier;
+    unsigned       maxAllowedEnemiesThrough;
+    int            startingMoney;
+    
+    int            money = 0;
+    int            score = 0;
+    unsigned       enemiesThrough = 0;
     
 private:
-    GameObjectList enemies;
-    GameObjectList towers;
-    GameObjectList projectiles;
-    GameObjectList staticAnimations;
+    std::shared_ptr<Map>    map;
+    GameObjectList          maps;
+    GameObjectList          enemies;
+    GameObjectList          towers;
+    GameObjectList          projectiles;
+    GameObjectList          staticAnimations;
+    DrawableList            enemyHealthbars;
 };
 
 #endif /* TOWERDEFENCESCENE_HPP */

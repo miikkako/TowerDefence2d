@@ -1,8 +1,11 @@
 #ifndef GAMEOBJECT_HPP
 #define GAMEOBJECT_HPP
 
-#include <vector>
 #include <SFML/Graphics.hpp>
+#include <vector>
+#include <math.h>
+
+#define PI 3.14159f // use this rather than M_PI 
 
 class Scene;
 
@@ -12,54 +15,184 @@ class AnimatedGameObject
 public:
     typedef std::vector<sf::Texture> TextureList;
     
-    /* In the constructor, the sprite's origin is set to the texture's center by default */
-    AnimatedGameObject(float x_pos, float y_pos,
-        TextureList* t, short unsigned animation_tick_interval, bool centerize_origin = true);
+    ////////////////////////////////////////////////////////////
+    /// \param source two component vector with member "x" and "y"
+    /// \return the length of the parameter source
+    ////////////////////////////////////////////////////////////
+    template <typename vec_T>
+    static float length(const vec_T& source);
     
-    /* This constructor also sets the rotation of the sprite */
-    AnimatedGameObject(float x_pos, float y_pos, float rotation_angle_degrees,
-        TextureList* t, short unsigned animation_tick_interval, bool centerize_origin = true);
+    ////////////////////////////////////////////////////////////
+    /// \param source two component vector with member "x" and "y"
+    /// \return the angle of the vector in degrees
+    ////////////////////////////////////////////////////////////
+    template <typename vec_T>
+    static float angleDeg(const vec_T& source);
+    
+    ////////////////////////////////////////////////////////////
+    /// \param source two component vector with member "x" and "y"
+    /// \return the parameter source vector normalized
+    ////////////////////////////////////////////////////////////
+    template <typename vec_T>
+    static vec_T normalize(const vec_T& source);
+    
+    static void setShapeOriginToCenter(sf::Shape* s);
+    
+    ////////////////////////////////////////////////////////////
+    /// \brief Construct the AnimatedGameObject with the parameters
+    /// \param x_pos the initial x coordinate to set the object on
+    /// \param y_pos the initial y coordinate to set the object on
+    /// \param t pointer to a list of textures that loop
+    /// \param animation_tick_interval the interval of game ticks of the animation loop
+    /// \param rotation_angle_degrees the initial rotation of the object
+    /// \param centerize_origin set the center of the sprite to the center of the texture, otherwise in the top left corner
+    ////////////////////////////////////////////////////////////
+    AnimatedGameObject(float x_pos
+                      ,float y_pos
+                      ,TextureList* t
+                      ,short unsigned animation_tick_interval
+                      ,float rotation_angle_degrees = 0
+                      ,bool centerize_origin = true);
+    
+    ////////////////////////////////////////////////////////////
+    /// \brief Construct the AnimatedGameObject with the parameters
+    /// \param pos the initial position to set the object on
+    /// \param t pointer to a list of textures that loop
+    /// \param animation_tick_interval the interval of game ticks of the animation loop
+    /// \param rotation_angle_degrees the initial rotation of the object
+    /// \param centerize_origin set the center of the sprite to the center of the texture, otherwise in the top left corner
+    ////////////////////////////////////////////////////////////
+    AnimatedGameObject(sf::Vector2f pos
+                      ,TextureList* t
+                      ,short unsigned animation_tick_interval
+                      ,float rotation_angle_degrees = 0
+                      ,bool centerize_origin = true);
     
     sf::Sprite& getSprite() { return sprite; };
     
-    /* This draw-method is bound to gameticks. Return false = delete object */
-    virtual bool draw(sf::RenderWindow& w);
-//    bool otherDrawMethodThatIsNotBoundToGameTicks(sf::RenderWindow& w);
+    ////////////////////////////////////////////////////////////
+    /// \brief Add a drawable and movable shape to be attached to the parent object
+    /// NOTE! the pointer is saved to the list as a smart pointer, 
+    /// i.e. its destructor will be called when the main object (and the list) is destroyed
+    /// \param obj_ptr the drawable shape
+    ////////////////////////////////////////////////////////////
+    void addChildDrawable(std::shared_ptr<sf::Shape> obj);
+    void removeChildDrawable(sf::Shape* obj_ptr);
+    
+    ////////////////////////////////////////////////////////////
+    /// \brief Move the object and its children shapes
+    /// \param movement the amount that the object is moved as an rvalue reference
+    ////////////////////////////////////////////////////////////
+    void move(sf::Vector2f&& movement);
     
     virtual void setUp() {}; // optional
     virtual bool update() = 0; // obligatory, return false = delete object
+    virtual void print(std::ostream& os) const { (void) os; }; // optional
+    friend std::ostream& operator<<(std::ostream& os, const AnimatedGameObject& a);
     
-protected:
+    friend class StaticAnimation;
+    friend class Scene;
+    
+private:
+    ////////////////////////////////////////////////////////////
+    /// \brief Draw and animate the object
+    /// Update the animation tick every time called.
+    /// \param w target to draw the object to
+    /// \return does the object live?
+    ////////////////////////////////////////////////////////////
+    virtual bool draw(sf::RenderWindow& w);
+//    bool otherDrawMethodThatIsNotBoundToGameTicks(sf::RenderWindow& w);?
+    
+    void drawBoundingBox(sf::RenderWindow& w, const sf::Color& c) const; // this has much overhead
+    void drawOriginCircle(sf::RenderWindow& w, const sf::Color& c) const; // this has much overhead
+    void initializeAnimation();
+    void __draw(sf::RenderWindow& w);
     void updateAnimation();
     sf::Texture& getNextTexture();
-//    void setAnimation(TextureList& t);
-    void initializeAnimation();
     
-    short unsigned currentFrameIndex = 0; // this always starts from zero
-    short unsigned ticksFromLastFrameUpdate = 0; // this always starts from zero
+protected:
+    virtual void drawOtherDebugThings(sf::RenderWindow& w) const { (void) w; }; // optional, only called if DEBUG mode is on
+    void setOriginToCenter();
+    void setAnimation(TextureList* t);
     
-    Scene* currentScene; // this can be initialized in the derived classes
-    TextureList* textures; // the corresponding scene handles the memory of these pointers
-    short unsigned animationTickInterval;
-    bool centerizeOrigin;
+    short unsigned                      currentFrameIndex = 0;
+    short unsigned                      ticksFromLastFrameUpdate = 0;
+    TextureList*                        textures; // the corresponding scene handles the memory of these pointers
+    short unsigned                      animationTickInterval;
+    bool                                centerizeOrigin;
+    sf::Sprite                          sprite;
     
-    sf::Sprite sprite;
+    // The children shapes get drawn when the parent object gets, and moved in the member "move()"-method.
+    // The vector owns the pointers, i.e. when the gameobject is destroyed, the shared pointers are destroyed
+    // @TODO: the list could be a list of AnimatedGameObjects
+    std::vector<std::shared_ptr<sf::Shape>> childrenShapes;
 };
 
-/* StaticGameObject can be used as e.g. explosion, gun flame, etc. */
+/* StaticAnimation can be used as e.g. explosion, gun flame, etc. */
 class StaticAnimation : public AnimatedGameObject
 {
 public:
-    StaticAnimation(float x_pos, float y_pos, float rotation_angle_degrees,
-        short unsigned animation_loops_lifetime, TextureList* t,
-        short unsigned animation_tick_interval, bool centerize_origin = true);
-    /* This class has its own draw-method */
-    bool draw(sf::RenderWindow& w) override;
+    StaticAnimation(float x_pos
+                   ,float y_pos
+                   ,TextureList* t
+                   ,short unsigned animation_loops_lifetime
+                   ,short unsigned animation_tick_interval
+                   ,float rotation_angle_degrees = 0
+                   ,bool centerize_origin = true);
+    StaticAnimation(sf::Vector2f pos
+                   ,TextureList* t
+                   ,short unsigned animation_loops_lifetime
+                   ,short unsigned animation_tick_interval
+                   ,float rotation_angle_degrees = 0
+                   ,bool centerize_origin = true);
     
 private:
+    ////////////////////////////////////////////////////////////
+    /// \param w target which the object is drawn to
+    /// \return false if the object has looped enough, true otherwise
+    ////////////////////////////////////////////////////////////
+    bool draw(sf::RenderWindow& w) override;
+    
     short unsigned animationLoopsLifetime; // initialize as 0 if the object lasts forever
     short unsigned currentLoop = 0;
 };
 
+template <typename vec_T>
+float AnimatedGameObject::length(const vec_T& source)
+{
+    return sqrt((source.x * source.x) + (source.y * source.y));
+}
+
+template <typename vec_T>
+float AnimatedGameObject::angleDeg(const vec_T& source)
+{
+    return atan2(source.y, source.x) * 180 / PI;
+}
+
+template <typename vec_T>
+vec_T AnimatedGameObject::normalize(const vec_T& source)
+{
+    float len = length(source);
+    if (len != 0)
+        return vec_T(source.x / len, source.y / len);
+    else
+        return source;
+}
+
+/* Helper functions for printing SFML rectangles and vectors */
+template<typename T>
+std::ostream& operator<< (std::ostream &os, const sf::Rect<T>& rect)
+{
+    os << "(Rect: left " << rect.left  << ", top " << rect.top << ", width "
+       << rect.width << ", height " << rect.height << ")";
+    return os;
+}
+
+template<typename T>
+std::ostream& operator<< (std::ostream &os, const sf::Vector2<T>& vec)
+{
+    os << "(" << vec.x << ", " << vec.y << ")";
+    return os;
+}
 
 #endif /* GAMEOBJECT_HPP */

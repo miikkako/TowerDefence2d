@@ -1,17 +1,12 @@
 #include "include/gameobject.hpp"
+#include <typeinfo>
 
-AnimatedGameObject::AnimatedGameObject(float x_pos, float y_pos,
-    TextureList* t, short unsigned animation_tick_interval, bool centerize_origin)
-        :textures(t)
-        ,animationTickInterval(animation_tick_interval)
-        ,centerizeOrigin(centerize_origin)
-{
-    sprite.setPosition(x_pos, y_pos);
-    this->initializeAnimation();
-}
-
-AnimatedGameObject::AnimatedGameObject(float x_pos, float y_pos, float rotation_angle_degrees,
-    TextureList* t, short unsigned animation_tick_interval, bool centerize_origin)
+AnimatedGameObject::AnimatedGameObject(float x_pos
+                                      ,float y_pos
+                                      ,TextureList* t
+                                      ,short unsigned animation_tick_interval
+                                      ,float rotation_angle_degrees
+                                      ,bool centerize_origin)
         :textures(t)
         ,animationTickInterval(animation_tick_interval)
         ,centerizeOrigin(centerize_origin)
@@ -21,18 +16,88 @@ AnimatedGameObject::AnimatedGameObject(float x_pos, float y_pos, float rotation_
     sprite.setRotation(rotation_angle_degrees);
 }
 
+AnimatedGameObject::AnimatedGameObject(sf::Vector2f pos
+                                      ,TextureList* t
+                                      ,short unsigned animation_tick_interval
+                                      ,float rotation_angle_degrees
+                                      ,bool centerize_origin)
+        :textures(t)
+        ,animationTickInterval(animation_tick_interval)
+        ,centerizeOrigin(centerize_origin)
+{
+    sprite.setPosition(pos);
+    this->initializeAnimation();
+    sprite.setRotation(rotation_angle_degrees);
+}
+
+void AnimatedGameObject::addChildDrawable(std::shared_ptr<sf::Shape> obj)
+{
+    childrenShapes.push_back(obj);
+}
+
+void AnimatedGameObject::removeChildDrawable(sf::Shape* obj_ptr)
+{
+    for(auto iter = childrenShapes.begin(); iter != childrenShapes.end(); ++iter)
+    {
+        if(iter->get() == obj_ptr)
+        {
+            iter = childrenShapes.erase(iter);
+            --iter;
+        }
+    }
+}
+
+void AnimatedGameObject::move(sf::Vector2f&& movement)
+{
+    sprite.move(movement);
+    for(auto iter = childrenShapes.begin(); iter != childrenShapes.end(); ++iter)
+        (*iter)->move(movement);
+}
+
 bool AnimatedGameObject::draw(sf::RenderWindow& w)
 {
     this->updateAnimation();
-    w.draw(sprite);
+    this->__draw(w);
     return true;
+}
+
+void AnimatedGameObject::__draw(sf::RenderWindow& w)
+{
+    w.draw(sprite);
+    for(auto iter = childrenShapes.begin(); iter != childrenShapes.end(); ++iter)
+        w.draw(**iter);
+}
+
+void AnimatedGameObject::drawBoundingBox(sf::RenderWindow& w, const sf::Color& c) const
+{
+    sf::RectangleShape bbox(sf::Vector2f(sprite.getLocalBounds().width,
+                                         sprite.getLocalBounds().height));
+    bbox.setFillColor(sf::Color::Transparent);
+    bbox.setOutlineThickness(2);
+    bbox.setOutlineColor(c);
+    if(centerizeOrigin)
+        this->setShapeOriginToCenter(&bbox);
+    bbox.setPosition(sprite.getPosition());
+    w.draw(bbox);
+}
+
+void AnimatedGameObject::drawOriginCircle(sf::RenderWindow& w, const sf::Color& c) const
+{
+    sf::CircleShape circle = sf::CircleShape(3);
+    circle.setFillColor(c);
+    this->setShapeOriginToCenter(&circle);
+    circle.setPosition(sprite.getPosition());
+    w.draw(circle);
 }
 
 void AnimatedGameObject::updateAnimation()
 {
+//    if(!textures)
+//        throw std::runtime_error(std::string("Object ") + typeid(*this).name() + "'s 'textures'-member points to null");
     if(animationTickInterval > 0 && ++ticksFromLastFrameUpdate >= animationTickInterval)
     {
         sprite.setTexture(this->getNextTexture(), true);
+        this->setOriginToCenter();
         ticksFromLastFrameUpdate = 0;
     }
 }
@@ -43,31 +108,54 @@ sf::Texture& AnimatedGameObject::getNextTexture()
         currentFrameIndex = 0;
     else
         ++currentFrameIndex;
-    return (*textures)[currentFrameIndex];
+    return textures->at(currentFrameIndex);
 }
 
 void AnimatedGameObject::initializeAnimation()
 {
-    sprite.setTexture((*textures)[0], true); // start with the first texture in the list
+    if(!textures)
+        throw std::runtime_error(std::string("Tried to set object ")
+                + typeid(*this).name() + "'s 'textures'-member to nullptr");
+    sprite.setTexture(textures->at(0), true); // start with the first texture in the list
     if(centerizeOrigin)
     {
-        sf::FloatRect textRect = sprite.getLocalBounds();
-        sprite.setOrigin(textRect.left + textRect.width/2.0f, textRect.top + textRect.height/2.0f);
-    } 
+        this->setOriginToCenter();
+    }
 }
 
-//void AnimatedGameObject::setAnimation(TextureList& t)
-//{
-//    sprite.setTexture(t[0]);
-//}
+void AnimatedGameObject::setShapeOriginToCenter(sf::Shape* s)
+{
+    sf::FloatRect rect = s->getLocalBounds();
+    s->setOrigin(rect.left + rect.width/2.0f, rect.top + rect.height/2.0f);
+}
+
+void AnimatedGameObject::setOriginToCenter()
+{
+    sf::FloatRect rect = sprite.getLocalBounds();
+    sprite.setOrigin(rect.left + rect.width/2.0f, rect.top + rect.height/2.0f);
+}
+
+void AnimatedGameObject::setAnimation(TextureList* t)
+{
+    textures = t;
+    this->initializeAnimation();
+}
 
 
 /* Explosions, etc. */
-StaticAnimation::StaticAnimation(float x_pos, float y_pos, float rotation_angle_degrees,
-    short unsigned animation_loops_lifetime, TextureList* t,
-    short unsigned animation_tick_interval, bool centerize_origin)
-        :AnimatedGameObject(x_pos, y_pos, rotation_angle_degrees, t,
-            animation_tick_interval, centerize_origin)
+StaticAnimation::StaticAnimation(float x_pos, float y_pos, TextureList* t,
+    short unsigned animation_loops_lifetime, short unsigned animation_tick_interval,
+    float rotation_angle_degrees, bool centerize_origin)
+        :AnimatedGameObject(x_pos, y_pos, t, animation_tick_interval,
+            rotation_angle_degrees, centerize_origin)
+        ,animationLoopsLifetime(animation_loops_lifetime)
+{ }
+
+StaticAnimation::StaticAnimation(sf::Vector2f pos, TextureList* t,
+    short unsigned animation_loops_lifetime, short unsigned animation_tick_interval,
+    float rotation_angle_degrees, bool centerize_origin)
+        :AnimatedGameObject(pos, t, animation_tick_interval,
+            rotation_angle_degrees, centerize_origin)
         ,animationLoopsLifetime(animation_loops_lifetime)
 { }
 
@@ -77,6 +165,17 @@ bool StaticAnimation::draw(sf::RenderWindow& w)
     if(animationLoopsLifetime > 0 && currentLoop++ > animationLoopsLifetime)
         return false;
     this->updateAnimation();
-    w.draw(sprite);
+    this->__draw(w);
     return true;
+}
+
+std::ostream& operator<<(std::ostream& os, const AnimatedGameObject& obj)
+{
+    os << "AnimatedGameObject " << typeid(obj).name() << ": "
+       << "Position = " << obj.sprite.getPosition() << ". "
+       << "Rotation = " << obj.sprite.getRotation() << ". "
+       << "Origin = " << obj.sprite.getOrigin() << ". "
+       ;
+    obj.print(os);
+    return os;
 }

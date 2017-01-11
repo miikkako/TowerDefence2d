@@ -42,7 +42,11 @@ void UserEventHandler::handleMouseButtonPressed(sf::Event& e)
 
 void UserEventHandler::handleDebugKeys(sf::Event& e)
 {
-    if (e.key.code == sf::Keyboard::P) {
+    if(e.key.code == sf::Keyboard::P) {
         sceneHandler.pauseLogic();
+    } else if(e.key.code == sf::Keyboard::S) {
+        sceneHandler.printScene();
+    } else if(e.key.code == sf::Keyboard::D) {
+        sceneHandler.toggleSceneDebugDraw();
     }
 }

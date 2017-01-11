@@ -17,17 +17,23 @@ public:
     
     friend class UserEventHandler;
     
-private:
+private: // these private methods are only callable by the UserEventHandler base class
     void pauseLogic() { if(DEBUG) logicPaused = !logicPaused; }; // friend method
-    void setLogicFPS();
-    void increaseLogicFPS();
-    void decreaseLogicFPS();
+    void toggleSceneDebugDraw() { drawSceneDebugThings = !drawSceneDebugThings; };
+    void printScene();
+    void setUpdateFPS();
+    void increaseUpdateFPS();
+    void decreaseUpdateFPS();
     
 public:
     /* Initialize the outputstreams in the header file so that they can be modified more easily */
     std::ostream&               os          = std::cerr; // os for debugging
     std::ostream&               importantOs = std::cout;
     const bool                  DEBUG;
+    bool                        logicPaused;
+    bool                        drawSceneDebugThings;
+    const sf::Color             boundingBoxColor;
+    const sf::Color             gameobjectOriginColor;
     const int                   lowSoundVolume;
     const int                   mediumSoundVolume;
     const int                   highSoundVolume;
@@ -35,11 +41,9 @@ public:
     const unsigned              maxSoundsSimultaneously;
     
 private:
-    short unsigned              logicUpdateFPS;
-    short unsigned              userActionUpdateFPS;
-    sf::Time                    logicUpdateInterval;
-    sf::Time                    userActionUpdateInterval;
-    bool                        logicPaused = false;
+    short unsigned              updateFPS;
+    short unsigned              FPSchangeStep;
+    sf::Time                    updateInterval;
     std::shared_ptr<Scene>      scene;
     sf::RenderWindow            window;
     SoundHandler                soundHandler;

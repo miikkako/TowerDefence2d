@@ -1,17 +1,20 @@
 #include "include/scenehandler.hpp"
 
 SceneHandler::SceneHandler()
-    :DEBUG                   (true)
-    ,lowSoundVolume          (10)
-    ,mediumSoundVolume       (30)
-    ,highSoundVolume         (60)
-    ,maxSoundVolume          (90)
-    ,maxSoundsSimultaneously (100)
-    ,logicUpdateFPS          (100)
-    ,userActionUpdateFPS     (200)
+    :DEBUG                       (true)
+    ,logicPaused                 (false)
+    ,drawSceneDebugThings        (true)
+    ,boundingBoxColor            (sf::Color::Red)
+    ,gameobjectOriginColor       (sf::Color::Cyan)
+    ,lowSoundVolume              (10)
+    ,mediumSoundVolume           (30)
+    ,highSoundVolume             (60)
+    ,maxSoundVolume              (90)
+    ,maxSoundsSimultaneously     (100)
+    ,updateFPS                   (100)
+    ,FPSchangeStep               (1)
     /* Members below are not intended to be modified */
-    ,logicUpdateInterval(sf::seconds(1.f / logicUpdateFPS))
-    ,userActionUpdateInterval(sf::seconds(1.f / userActionUpdateFPS))
+//    ,updateInterval(sf::seconds(1.f / updateFPS))
     ,window(sf::VideoMode(10, 10), "")
     ,soundHandler(SoundHandler(maxSoundsSimultaneously))
 {
@@ -23,29 +26,20 @@ SceneHandler::SceneHandler()
 void SceneHandler::run()
 {
     os << "Running game..." << std::endl;
-    if(!scene) os << "Scene not set" << std::endl;
-    sf::Clock logic_clock, useraction_clock;
-    sf::Time elapsed_since_last_logic_update, elapsed_since_last_useraction_update;
+    if(!scene) os << "Scene not set!" << std::endl;
     scene->setUp();
+    this->setUpdateFPS();
     while(window.isOpen())
     {
-        /* @TODO: sleep if possible */
-        elapsed_since_last_useraction_update = useraction_clock.getElapsedTime();
-        if(elapsed_since_last_useraction_update > userActionUpdateInterval)
-        {
-            scene->handleWindowEvent(window);
-            useraction_clock.restart();
-        }
-        elapsed_since_last_logic_update = logic_clock.getElapsedTime();
-        if(!logicPaused && elapsed_since_last_logic_update > logicUpdateInterval)
-        {
-            window.clear();
-            scene->draw(window);
-            window.display();
-            soundHandler.deletePlayedSounds();
+        scene->handleWindowEvent(window); // this could run in a different thread
+        window.clear();
+        scene->draw(window);
+        if(DEBUG && drawSceneDebugThings)
+            scene->drawDebugThings(window);
+        window.display(); // window.display blocks if its framerate-limit is exceeded
+        soundHandler.deletePlayedSounds();
+        if(DEBUG && !logicPaused)
             scene->update();
-            logic_clock.restart();
-        }
     }
     os << "...Exiting" << std::endl;
 }
@@ -53,30 +47,30 @@ void SceneHandler::run()
 void SceneHandler::setScene(Scene* s)
 {
     scene.reset(s);
-    window.setSize(scene->getWindowSize());
-    window.setTitle(scene->getTitle());
+    window.create(sf::VideoMode(scene->getWindowSize().x, scene->getWindowSize().y),
+                  scene->getTitle()); // recreate the window
 }
 
-void SceneHandler::setLogicFPS()
+void SceneHandler::printScene()
 {
-    logicUpdateInterval = sf::seconds(1.f / logicUpdateFPS);
-    if(logicUpdateFPS < 60)
-        window.setFramerateLimit(60);
-    else
-        window.setFramerateLimit(logicUpdateFPS);
+    os << *scene << std::endl;
 }
 
-void SceneHandler::increaseLogicFPS()
+void SceneHandler::setUpdateFPS()
 {
-    logicUpdateFPS += 10;
-    setLogicFPS();
+//    updateInterval = sf::seconds(1.f / updateFPS);
+    window.setFramerateLimit(updateFPS);
 }
 
-void SceneHandler::decreaseLogicFPS()
+void SceneHandler::increaseUpdateFPS()
 {
-    if(logicUpdateFPS > 10)
-        logicUpdateFPS -= 10;
-    else if (logicUpdateFPS > 1)
-        logicUpdateFPS -= 1;
-    setLogicFPS();
+    updateFPS += FPSchangeStep;
+    setUpdateFPS();
+}
+
+void SceneHandler::decreaseUpdateFPS()
+{
+    if (updateFPS > 1)
+        updateFPS -= FPSchangeStep;
+    setUpdateFPS();
 }
