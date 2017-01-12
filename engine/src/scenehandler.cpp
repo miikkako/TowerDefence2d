@@ -1,7 +1,7 @@
 #include "include/scenehandler.hpp"
 
-SceneHandler::SceneHandler()
-    :DEBUG                       (true)
+SceneHandler::SceneHandler(const bool DEBUG)
+    :DEBUG                       (DEBUG)
     ,logicPaused                 (false)
     ,drawSceneDebugThings        (true)
     ,boundingBoxColor            (sf::Color::Red)
@@ -15,7 +15,7 @@ SceneHandler::SceneHandler()
     ,FPSchangeStep               (1)
     /* Members below are not intended to be modified */
 //    ,updateInterval(sf::seconds(1.f / updateFPS))
-    ,window(sf::VideoMode(10, 10), "")
+    ,window(sf::VideoMode(0, 0), "")
     ,soundHandler(SoundHandler(maxSoundsSimultaneously))
 {
     /* "seed" the random numbers (for the parts of the game to get a random value).
@@ -51,7 +51,7 @@ void SceneHandler::setScene(Scene* s)
                   scene->getTitle()); // recreate the window
 }
 
-void SceneHandler::printScene()
+void SceneHandler::printSceneDebug()
 {
     os << *scene << std::endl;
 }

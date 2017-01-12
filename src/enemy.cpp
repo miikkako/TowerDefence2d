@@ -73,12 +73,10 @@ bool MapWaypointEnemy::moveWithWaypointsAndCheckIfGoaled()
         /* Calculate the remaining distance */
         sf::Vector2f nextnext_waypoint(map->getWaypoint(mapPathIndex, currentWaypointIndex + 2));
         sf::Vector2f vec_from_next_to_nextnext(nextnext_waypoint - next_waypoint);
-        float new_position_offset_length = length(vec_from_current_to_new) - length(vec_from_current_to_next);
+        float new_position_offset_length(length(vec_from_current_to_new) - length(vec_from_current_to_next));
         new_position = sprite.getPosition() + normalize(vec_from_next_to_nextnext) * new_position_offset_length;
-        /* Rotate image towards the new target: */
-        sf::Vector2f diff(next_waypoint - nextnext_waypoint);
-        sprite.setRotation(angleDeg(diff)); // angle in degrees inside setRotation
         ++currentWaypointIndex;
+        this->setRotation(nextnext_waypoint - next_waypoint);
     }
     this->move(new_position - sprite.getPosition());
     return false;

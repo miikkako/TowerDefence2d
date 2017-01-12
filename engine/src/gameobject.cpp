@@ -54,14 +54,20 @@ void AnimatedGameObject::move(sf::Vector2f&& movement)
         (*iter)->move(movement);
 }
 
+void AnimatedGameObject::setRotation(const sf::Vector2f& direction)
+{
+    sprite.setRotation(angleDeg(direction)); // angle in degrees inside setRotation
+    //@TODO: rotate the bounding box
+}
+
 bool AnimatedGameObject::draw(sf::RenderWindow& w)
 {
     this->updateAnimation();
-    this->__draw(w);
+    this->onDraw(w);
     return true;
 }
 
-void AnimatedGameObject::__draw(sf::RenderWindow& w)
+void AnimatedGameObject::onDraw(sf::RenderWindow& w)
 {
     w.draw(sprite);
     for(auto iter = childrenShapes.begin(); iter != childrenShapes.end(); ++iter)
@@ -75,13 +81,11 @@ void AnimatedGameObject::drawBoundingBox(sf::RenderWindow& w, const sf::Color& c
     bbox.setFillColor(sf::Color::Transparent);
     bbox.setOutlineThickness(2);
     bbox.setOutlineColor(c);
-    if(centerizeOrigin)
-        this->setShapeOriginToCenter(&bbox);
-    bbox.setPosition(sprite.getPosition());
+    bbox.setPosition(sprite.getGlobalBounds().left, sprite.getGlobalBounds().top);
     w.draw(bbox);
 }
 
-void AnimatedGameObject::drawOriginCircle(sf::RenderWindow& w, const sf::Color& c) const
+void AnimatedGameObject::drawOrigin(sf::RenderWindow& w, const sf::Color& c) const
 {
     sf::CircleShape circle = sf::CircleShape(3);
     circle.setFillColor(c);
@@ -165,7 +169,7 @@ bool StaticAnimation::draw(sf::RenderWindow& w)
     if(animationLoopsLifetime > 0 && currentLoop++ > animationLoopsLifetime)
         return false;
     this->updateAnimation();
-    this->__draw(w);
+    this->onDraw(w);
     return true;
 }
 

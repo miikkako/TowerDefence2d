@@ -82,7 +82,7 @@ void Scene::drawDebugThings(sf::RenderWindow& w) const
         for(auto iter = (*list_iter)->begin(); iter != (*list_iter)->end(); ++iter)
         {
             (*iter)->drawBoundingBox(w, sceneHandler.boundingBoxColor);
-            (*iter)->drawOriginCircle(w, sceneHandler.gameobjectOriginColor);
+            (*iter)->drawOrigin(w, sceneHandler.gameobjectOriginColor);
             (*iter)->drawOtherDebugThings(w);
         }
     }
@@ -134,12 +134,7 @@ std::string Scene::loadAndSaveAnimation(const std::string& folder_path
                                        ,const std::string file_extension)
 {
     // Extract the folder name from the path first
-    std::string folder_name;
-    size_t pos = folder_path.find_last_of("/");
-    if(pos != std::string::npos)
-        folder_name.assign(folder_path.begin() + pos + 1, folder_path.end());
-    else
-        folder_name = folder_path;
+    std::string folder_name = extractFilename(folder_path);
     animationMap.insert(std::make_pair(folder_name
                                        ,this->loadAnimation(folder_path
                                                            ,file_extension)));
@@ -148,10 +143,40 @@ std::string Scene::loadAndSaveAnimation(const std::string& folder_path
     return folder_name;
 }
 
-std::string Scene::loadAndSaveSoundBuffer(const std::string& filename)
+std::string Scene::loadAndSaveSoundbuffer(const std::string& file_path)
 {
-    soundBufferMap.insert(std::make_pair(filename, this->loadSoundBuffer(filename)));
+    std::string filename = extractFilename(file_path);
+    soundbufferMap.insert(std::make_pair(filename, this->loadSoundbuffer(file_path)));
+    sceneHandler.os << "The sound buffer was saved to the sound buffer -map as \""
+            << filename << "\"" << std::endl;
     return filename;
+}
+
+std::string Scene::loadAndSaveFont(const std::string& file_path)
+{
+    std::string filename = extractFilename(file_path);
+    fontMap.insert(std::make_pair(filename, this->loadFont(file_path)));
+    sceneHandler.os << "The font was saved to the font-map as \""
+            << filename << "\"" << std::endl;
+    return filename;
+}
+
+sf::Font& Scene::getFont(const std::string& font_name)
+{
+    try {
+        return fontMap.at(font_name);
+    } catch (std::exception& e) {
+        throw std::invalid_argument("Scene::getFont(\"" + font_name + "\").");
+    }
+}
+
+sf::SoundBuffer& Scene::getSoundbuffer(const std::string& soundbuffer_name)
+{
+    try {
+        return soundbufferMap.at(soundbuffer_name);
+    } catch (std::exception& e) {
+        throw std::invalid_argument("Scene::getSoundbuffer(\"" + soundbuffer_name + "\").");
+    }
 }
 
 AnimatedGameObject::TextureList* Scene::getAnimation(const std::string& animation_name)
@@ -159,7 +184,7 @@ AnimatedGameObject::TextureList* Scene::getAnimation(const std::string& animatio
     try {
         return &animationMap.at(animation_name);
     } catch (std::exception& e) {
-        throw std::invalid_argument("Scene::getAnimation('" + animation_name + "').");
+        throw std::invalid_argument("Scene::getAnimation(\"" + animation_name + "\").");
     }
 }
 
@@ -170,13 +195,13 @@ AnimatedGameObject::TextureList* Scene::loadAndSaveAndGetAnimation(const std::st
     return this->getAnimation(folder_name);
 }
 
-sf::Texture Scene::loadTexture(const std::string& s)
+sf::Texture Scene::loadTexture(const std::string& file_path)
 {
-    sf::Texture texture;
-    if(!texture.loadFromFile(s))
-        throw std::invalid_argument("Texture \"" + s + "\" not found");
-    sceneHandler.os << "Loaded texture \"" + s << "\"" << std::endl;
-    return texture;
+    sf::Texture t;
+    if(!t.loadFromFile(file_path))
+        throw std::invalid_argument("Texture \"" + file_path + "\" not found");
+    sceneHandler.os << "Loaded texture \"" + file_path << "\"" << std::endl;
+    return t;
 }
 
 AnimatedGameObject::TextureList Scene::loadAnimation(const std::string& folder_path
@@ -210,11 +235,31 @@ AnimatedGameObject::TextureList Scene::loadAnimation(const std::string& folder_p
     return ret;
 }
 
-sf::SoundBuffer Scene::loadSoundBuffer(const std::string& filename)
+sf::SoundBuffer Scene::loadSoundbuffer(const std::string& file_path)
 {
-    sf::SoundBuffer sound;
-    if(!sound.loadFromFile(filename))
-        throw std::invalid_argument("Sound \"" + filename + "\"not found");
-    return sound;
+    sf::SoundBuffer s;
+    if(!s.loadFromFile(file_path))
+        throw std::invalid_argument("Sound \"" + file_path + "\"not found");
+    sceneHandler.os << "Loaded sound \"" + file_path << "\"" << std::endl;
+    return s;
 }
 
+sf::Font Scene::loadFont(const std::string& file_path)
+{
+    sf::Font f;
+    if(!f.loadFromFile(file_path))
+        throw std::invalid_argument("Font\"" + file_path + "\" not found");
+    sceneHandler.os << "Loaded font \"" + file_path << "\"" << std::endl;
+    return f;
+}
+
+std::string extractFilename(const std::string& file_path)
+{
+    std::string filename;
+    size_t pos = file_path.find_last_of("/");
+    if(pos != std::string::npos)
+        filename.assign(file_path.begin() + pos + 1, file_path.end());
+    else
+        filename = file_path;
+    return filename;
+}

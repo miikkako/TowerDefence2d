@@ -9,7 +9,6 @@ class Map : public AnimatedGameObject
 {
 public:
     Map(TowerDefenceScene* current_scene
-       ,const std::string& map_name
        ,const std::string& sprite_folder_path
        ,const std::string& image_file_extension);
     
@@ -23,10 +22,20 @@ public:
 protected:
     void drawOtherDebugThings(sf::RenderWindow& w) const override;
     
-private:    
+private:
+    ///////////////////////////////////////////////////
+    /// \brief Load the enemy path
+    /// Syntax: One path in one line like: "(x,y),(x,y)"...
+    /// \return was the loading succesful?
+    ///////////////////////////////////////////////////
+    bool loadEnemyPathFromFile();
+    
     TowerDefenceScene*                     currentScene;
     std::vector<std::vector<sf::Vector2f>> enemyPaths;
     short unsigned                         pathIndexOfLastEnemy = 0;
+    std::string                            mapName;
+    std::string                            contentFolderPath;
+    std::string                            enemypathsFilename;
 };
 
 #endif /* MAP_HPP */

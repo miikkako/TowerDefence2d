@@ -27,6 +27,8 @@ public:
 //    void                setWindowSize(sf::Vector2u s) { windowSize = s; };
     const std::string&  getTitle()        const       { return title; };
     
+    sf::Font& getFont(const std::string& font_name);
+    sf::SoundBuffer& getSoundbuffer(const std::string& soundbuffer_name);
     AnimatedGameObject::TextureList* getAnimation(const std::string& animation_name);
     AnimatedGameObject::TextureList* loadAndSaveAndGetAnimation(const std::string& folder_path
                                                                ,const std::string file_extension);
@@ -40,6 +42,8 @@ protected:
     virtual void drawSceneDebugThings(sf::RenderWindow& w) const { (void) w; }; // optional, only called if DEBUG mode is on
     
     ////////////////////////////////////////////////////////////
+    /// \brief Load all the textures from a folder
+    /// NOTE! Do not use a trailing slash in the folder_path parameter
     /// \param folder_path the path to the folder containing the sprites named as '00.file_extension', '01.file_extension', and so on.
     /// \param file_extension the file extensions of the images in the folder
     /// \return the name that the animation was saved as to the animation-map (The folder name extracted from the path)
@@ -47,7 +51,9 @@ protected:
     std::string loadAndSaveAnimation(const std::string& folder_path
                                     ,const std::string file_extension);
     
-    std::string loadAndSaveSoundBuffer(const std::string& filename); // saves the sound buffer using the file's name
+    std::string loadAndSaveSoundbuffer(const std::string& file_path); // save the sound buffer using the file's name
+    
+    std::string loadAndSaveFont(const std::string& file_path); // save the font using the file's name
     
     void addGameObjectListToBeUpdatedAndDrawn(GameObjectList* list);
     void addDrawableListToBeDrawn(DrawableList* list);
@@ -62,18 +68,22 @@ private:
     void draw(sf::RenderWindow& w);
     void drawDebugThings(sf::RenderWindow& w) const;
     
-    sf::Texture loadTexture(const std::string& s);
+    sf::Texture loadTexture(const std::string& filename);
     AnimatedGameObject::TextureList loadAnimation(const std::string& folder_path
                                                  ,const std::string file_extension);
-    sf::SoundBuffer loadSoundBuffer(const std::string& filename);
+    sf::SoundBuffer loadSoundbuffer(const std::string& file_path);
+    sf::Font loadFont(const std::string& file_path);
     
     sf::Vector2u                                           windowSize;
     std::string                                            title;
     std::map<std::string, AnimatedGameObject::TextureList> animationMap;
-    std::map<std::string, sf::SoundBuffer>                 soundBufferMap;
+    std::map<std::string, sf::SoundBuffer>                 soundbufferMap;
+    std::map<std::string, sf::Font>                        fontMap;
     ListOfGameObjectLists                                  allGameObjects;
     ListOfDrawableLists                                    allOtherDrawables; 
 };
+
+std::string extractFilename(const std::string& file_path);
 
 #endif /* SCENE_HPP */
 

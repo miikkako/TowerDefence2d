@@ -1,5 +1,6 @@
 #include "usereventhandler.hpp"
 #include "scenehandler.hpp"
+#include "include/scenehandler.hpp"
 
 UserEventHandler::UserEventHandler(SceneHandler& sh)
     :sceneHandler(sh)
@@ -13,40 +14,41 @@ void UserEventHandler::handleWindowEvent(sf::RenderWindow& window)
             window.close();
         } else if(e.type == sf::Event::Resized) {
             
-        } else if(e.type == sf::Event::KeyPressed) {
-            handleKeyPressed(e);
-        } else if(e.type == sf::Event::MouseButtonPressed) {
-            handleMouseButtonPressed(e);
         } else if(e.type == sf::Event::MouseMoved) {
-            handleMouseMoved(e);
+            this->handleMouseMoved(e);
+            if(sceneHandler.DEBUG)
+                handleMouseMovedDebug(e);
+        } else if(e.type == sf::Event::MouseButtonPressed) {
+            this->handleMouseButtonPressed(e);
+            if(sceneHandler.DEBUG)
+                handleMouseButtonPressedDebug(e);
+        } else if(e.type == sf::Event::KeyPressed) {
+            this->handleKeyPressed(e);
+            if(sceneHandler.DEBUG)
+                handleKeyPressedDebug(e);
         }
     }
 }
 
-void UserEventHandler::handleMouseMoved(sf::Event& e)
+void UserEventHandler::handleMouseMovedDebug(sf::Event& e)
 {
     (void) e;
-    //scaleMousePositionCoordinates(e);
+    // @TODO: a tooltip for drawing info about gameobjects
 }
 
-void UserEventHandler::handleKeyPressed(sf::Event& e)
-{
-    /* This method is meant to be overridden */
-    this->handleDebugKeys(e);
-}
-
-void UserEventHandler::handleMouseButtonPressed(sf::Event& e)
+void UserEventHandler::handleMouseButtonPressedDebug(sf::Event& e)
 {
     (void) e;
 }
 
-void UserEventHandler::handleDebugKeys(sf::Event& e)
+void UserEventHandler::handleKeyPressedDebug(sf::Event& e)
 {
     if(e.key.code == sf::Keyboard::P) {
         sceneHandler.pauseLogic();
     } else if(e.key.code == sf::Keyboard::S) {
-        sceneHandler.printScene();
+        sceneHandler.printSceneDebug();
     } else if(e.key.code == sf::Keyboard::D) {
         sceneHandler.toggleSceneDebugDraw();
     }
 }
+

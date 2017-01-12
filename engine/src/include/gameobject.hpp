@@ -85,6 +85,13 @@ public:
     ////////////////////////////////////////////////////////////
     void move(sf::Vector2f&& movement);
     
+    ////////////////////////////////////////////////////////////
+    /// \brief Set this object's orientation towards the pointed direction
+    /// This method also sets the orientation of the sprite's bounding box
+    /// \param direction the vector that points the direction
+    ////////////////////////////////////////////////////////////
+    void setRotation(const sf::Vector2f& direction);
+    
     virtual void setUp() {}; // optional
     virtual bool update() = 0; // obligatory, return false = delete object
     virtual void print(std::ostream& os) const { (void) os; }; // optional
@@ -104,9 +111,9 @@ private:
 //    bool otherDrawMethodThatIsNotBoundToGameTicks(sf::RenderWindow& w);?
     
     void drawBoundingBox(sf::RenderWindow& w, const sf::Color& c) const; // this has much overhead
-    void drawOriginCircle(sf::RenderWindow& w, const sf::Color& c) const; // this has much overhead
+    void drawOrigin(sf::RenderWindow& w, const sf::Color& c) const; // this has much overhead
     void initializeAnimation();
-    void __draw(sf::RenderWindow& w);
+    void onDraw(sf::RenderWindow& w);
     void updateAnimation();
     sf::Texture& getNextTexture();
     

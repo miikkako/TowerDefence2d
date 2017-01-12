@@ -8,7 +8,7 @@
 class SceneHandler
 {
 public:
-    SceneHandler();
+    explicit SceneHandler(const bool DEBUG);
     // explicit SceneHandler(Scene* starting_scene);
     SceneHandler(const SceneHandler&) = delete;
     SceneHandler& operator=(const SceneHandler&) = delete;
@@ -16,11 +16,12 @@ public:
     void setScene(Scene* s);
     
     friend class UserEventHandler;
+    friend class Scene;
     
 private: // these private methods are only callable by the UserEventHandler base class
     void pauseLogic() { if(DEBUG) logicPaused = !logicPaused; }; // friend method
     void toggleSceneDebugDraw() { drawSceneDebugThings = !drawSceneDebugThings; };
-    void printScene();
+    void printSceneDebug();
     void setUpdateFPS();
     void increaseUpdateFPS();
     void decreaseUpdateFPS();
@@ -31,7 +32,7 @@ public:
     std::ostream&               importantOs = std::cout;
     const bool                  DEBUG;
     bool                        logicPaused;
-    bool                        drawSceneDebugThings;
+    bool                        drawSceneDebugThings; // @TODO: make things private and usable by friends?
     const sf::Color             boundingBoxColor;
     const sf::Color             gameobjectOriginColor;
     const int                   lowSoundVolume;
