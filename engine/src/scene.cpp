@@ -1,7 +1,7 @@
 #include "scene.hpp"
 
 Scene::Scene(SceneHandler& sh
-            ,UserEventHandler* u
+            ,std::shared_ptr<UserEventHandler> u
             ,sf::Vector2u window_size
             ,const std::string& window_title)
     :sceneHandler      (sh)
@@ -19,6 +19,11 @@ Scene::~Scene()
 void Scene::handleWindowEvent(sf::RenderWindow& w)
 {
     userEventHandler->handleWindowEvent(w);
+}
+
+void Scene::handleDebugWindowEvent(sf::RenderWindow& w)
+{
+    userEventHandler->handleDebugWindowEvent(w);
 }
 
 void Scene::setUp()
@@ -86,7 +91,13 @@ void Scene::drawDebugThings(sf::RenderWindow& w) const
             (*iter)->drawOtherDebugThings(w);
         }
     }
+    drawDefaultSceneDebugThings(w);
     this->drawSceneDebugThings(w);
+}
+
+void Scene::drawDefaultSceneDebugThings(sf::RenderWindow& w) const
+{
+    (void) w;
 }
 
 std::ostream& operator<< (std::ostream& os, const Scene& s)

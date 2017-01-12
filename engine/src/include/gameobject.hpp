@@ -37,6 +37,7 @@ public:
     static vec_T normalize(const vec_T& source);
     
     static void setShapeOriginToCenter(sf::Shape* s);
+    static void setTextOriginToCenter(sf::Text& s);
     
     ////////////////////////////////////////////////////////////
     /// \brief Construct the AnimatedGameObject with the parameters
@@ -76,24 +77,9 @@ public:
     /// i.e. its destructor will be called when the main object (and the list) is destroyed
     /// \param obj_ptr the drawable shape
     ////////////////////////////////////////////////////////////
-    void addChildDrawable(std::shared_ptr<sf::Shape> obj);
+    void addChildDrawable(std::shared_ptr<sf::Shape> obj); // @TODO: addChildAnimatedGameObject()
     void removeChildDrawable(sf::Shape* obj_ptr);
     
-    ////////////////////////////////////////////////////////////
-    /// \brief Move the object and its children shapes
-    /// \param movement the amount that the object is moved as an rvalue reference
-    ////////////////////////////////////////////////////////////
-    void move(sf::Vector2f&& movement);
-    
-    ////////////////////////////////////////////////////////////
-    /// \brief Set this object's orientation towards the pointed direction
-    /// This method also sets the orientation of the sprite's bounding box
-    /// \param direction the vector that points the direction
-    ////////////////////////////////////////////////////////////
-    void setRotation(const sf::Vector2f& direction);
-    
-    virtual void setUp() {}; // optional
-    virtual bool update() = 0; // obligatory, return false = delete object
     virtual void print(std::ostream& os) const { (void) os; }; // optional
     friend std::ostream& operator<<(std::ostream& os, const AnimatedGameObject& a);
     
@@ -118,7 +104,23 @@ private:
     sf::Texture& getNextTexture();
     
 protected:
+    virtual void setUp() {}; // optional
+    virtual bool update() { return true; }; // optional, return false = delete object
     virtual void drawOtherDebugThings(sf::RenderWindow& w) const { (void) w; }; // optional, only called if DEBUG mode is on
+    
+    ////////////////////////////////////////////////////////////
+    /// \brief Move the object and its children shapes
+    /// \param movement the amount that the object is moved as an rvalue reference
+    ////////////////////////////////////////////////////////////
+    void move(sf::Vector2f&& movement);
+    
+    ////////////////////////////////////////////////////////////
+    /// \brief Set this object's orientation towards the pointed direction
+    /// This method also sets the orientation of the sprite's bounding box
+    /// \param direction the vector that points the direction
+    ////////////////////////////////////////////////////////////
+    void setRotation(const sf::Vector2f& direction);
+    
     void setOriginToCenter();
     void setAnimation(TextureList* t);
     

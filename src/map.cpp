@@ -22,7 +22,7 @@ Map::Map   (TowerDefenceScene* current_scene
 {
     if(mapName == "FirstMap")
     {
-        if(!loadEnemyPathFromFile())
+        if(!loadEnemyPathsFromFile())
             throw std::invalid_argument("Loading the map \"" + mapName + "\" failed.");
 //        textures = currentScene->getAnimation("FirstMap");
 //        animationTickInterval = 0;
@@ -42,6 +42,7 @@ void Map::drawOtherDebugThings(sf::RenderWindow& w) const
     text.setCharacterSize(10);
     text.setFillColor(sf::Color::Black);
     text.setStyle(sf::Text::Regular);
+    this->setTextOriginToCenter(text);
     std::array<sf::Color, 4> waypoint_colors
         {{sf::Color(38, 120, 230), sf::Color(200, 90, 120), sf::Color(90, 200, 120), sf::Color(120, 200, 15)}};
     for(size_t path_i(0); path_i < enemyPaths.size(); ++path_i)
@@ -78,12 +79,13 @@ bool Map::onMap(const sf::Vector2f& coordinate) const
     return sprite.getGlobalBounds().contains(coordinate);
 }
 
-bool Map::loadEnemyPathFromFile()
+bool Map::loadEnemyPathsFromFile()
 {
 //    enemyPaths = 
 //    {
 //        {sf::Vector2f(0,205), sf::Vector2f(100,220), sf::Vector2f(200,230), sf::Vector2f(250,240), sf::Vector2f(275,255), sf::Vector2f(290,270), sf::Vector2f(295,285), sf::Vector2f(290,310)}
 //    };
+    enemyPaths.clear();
     std::string line;
     std::string filepath(contentFolderPath + "/" + enemypathsFilename);
     std::ifstream enemypaths_file(filepath.c_str());
@@ -91,7 +93,7 @@ bool Map::loadEnemyPathFromFile()
     if (enemypaths_file.is_open())
     {
         float coord1, coord2;
-        currentScene->getOs() << " opening succesful, reading the paths from the file" << std::endl;
+        currentScene->getOs() << " opening succesful, reading the paths from the file." << std::endl;
         while(std::getline(enemypaths_file, line))
         {
             std::istringstream line_iss(line);
@@ -124,5 +126,6 @@ bool Map::loadEnemyPathFromFile()
         currentScene->getOs() << " opening unsuccesful" << std::endl;
         return false;
     }
+    currentScene->getOs() << "Paths read succesfully" << std::endl;
     return true;
 }

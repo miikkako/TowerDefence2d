@@ -69,7 +69,10 @@ bool MapWaypointEnemy::moveWithWaypointsAndCheckIfGoaled()
     if(length(vec_from_current_to_new) > length(vec_from_current_to_next))
     {
         if(!map->isWaypointIndexInBound(mapPathIndex, currentWaypointIndex + 2))
+        {
+            this->move(next_waypoint - sprite.getPosition());
             return true;
+        }
         /* Calculate the remaining distance */
         sf::Vector2f nextnext_waypoint(map->getWaypoint(mapPathIndex, currentWaypointIndex + 2));
         sf::Vector2f vec_from_next_to_nextnext(nextnext_waypoint - next_waypoint);

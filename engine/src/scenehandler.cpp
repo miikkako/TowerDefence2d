@@ -31,11 +31,16 @@ void SceneHandler::run()
     this->setUpdateFPS();
     while(window.isOpen())
     {
-        scene->handleWindowEvent(window); // this could run in a different thread
         window.clear();
+        scene->handleWindowEvent(window); // event handling could run in a different thread
         scene->draw(window);
-        if(DEBUG && drawSceneDebugThings)
-            scene->drawDebugThings(window);
+        if(DEBUG)
+        {
+            if(drawSceneDebugThings)
+                scene->drawDebugThings(window);
+            scene->handleDebugWindowEvent(window);
+            drawSceneHandlerDebugThings();
+        }
         window.display(); // window.display blocks if its framerate-limit is exceeded
         soundHandler.deletePlayedSounds();
         if(DEBUG && !logicPaused)
@@ -60,6 +65,7 @@ void SceneHandler::setUpdateFPS()
 {
 //    updateInterval = sf::seconds(1.f / updateFPS);
     window.setFramerateLimit(updateFPS);
+    os << "SceneHandler::updateFPS = " << updateFPS << std::endl;
 }
 
 void SceneHandler::increaseUpdateFPS()
@@ -73,4 +79,25 @@ void SceneHandler::decreaseUpdateFPS()
     if (updateFPS > 1)
         updateFPS -= FPSchangeStep;
     setUpdateFPS();
+}
+
+void SceneHandler::drawSceneHandlerDebugThings()
+{
+    drawMousePosition();
+}
+
+void SceneHandler::drawMousePosition()
+{
+    sf::Vector2i mouse_pos(sf::Mouse::getPosition(window));
+    os << mouse_pos << std::endl;
+    sf::Text t;
+    t.setString(std::to_string(mouse_pos.x) + "," + std::to_string(mouse_pos.y));
+    t.setCharacterSize(15);
+    t.setStyle(sf::Text::Regular);
+    t.setFillColor(sf::Color::Black);
+    t.setFont(scene->getFont("Regular.otf"));
+    AnimatedGameObject::setTextOriginToCenter(t);
+    sf::Vector2f float_pos(mouse_pos);
+    t.setPosition(float_pos.x, float_pos.y - 10);
+    window.draw(t);
 }

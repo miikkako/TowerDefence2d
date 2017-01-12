@@ -1,5 +1,6 @@
 #include "towerdefencescene.hpp"
 #include "include/enemy.hpp"
+#include "include/tdusereventhandler.hpp"
 
 #define ROOT_FOLDER std::string("../")
 #define ASSETS ROOT_FOLDER+"assets/"
@@ -9,7 +10,7 @@
 
 TowerDefenceScene::TowerDefenceScene(SceneHandler& sh, const std::string& map_name)
         :Scene(sh
-              ,new /* Here TDUserEventHandler */ UserEventHandler(sh)
+              ,std::shared_ptr<UserEventHandler>(new TdUserEventHandler(sh, this, true))
               ,sf::Vector2u(1280, 720)
               ,"Defend!")
         ,drawHealthBars             (true)

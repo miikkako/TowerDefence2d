@@ -25,6 +25,8 @@ private: // these private methods are only callable by the UserEventHandler base
     void setUpdateFPS();
     void increaseUpdateFPS();
     void decreaseUpdateFPS();
+    void drawSceneHandlerDebugThings();
+    void drawMousePosition();
     
 public:
     /* Initialize the outputstreams in the header file so that they can be modified more easily */

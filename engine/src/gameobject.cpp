@@ -127,12 +127,6 @@ void AnimatedGameObject::initializeAnimation()
     }
 }
 
-void AnimatedGameObject::setShapeOriginToCenter(sf::Shape* s)
-{
-    sf::FloatRect rect = s->getLocalBounds();
-    s->setOrigin(rect.left + rect.width/2.0f, rect.top + rect.height/2.0f);
-}
-
 void AnimatedGameObject::setOriginToCenter()
 {
     sf::FloatRect rect = sprite.getLocalBounds();
@@ -143,6 +137,18 @@ void AnimatedGameObject::setAnimation(TextureList* t)
 {
     textures = t;
     this->initializeAnimation();
+}
+
+void AnimatedGameObject::setShapeOriginToCenter(sf::Shape* s)
+{
+    sf::FloatRect rect(s->getLocalBounds());
+    s->setOrigin(rect.left + rect.width/2.0f, rect.top + rect.height/2.0f);
+}
+
+void AnimatedGameObject::setTextOriginToCenter(sf::Text& s)
+{
+    sf::FloatRect rect(s.getLocalBounds());
+    s.setOrigin(rect.left + rect.width/2.0f, rect.top + rect.height/2.0f);
 }
 
 

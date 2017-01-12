@@ -6,6 +6,7 @@
 #include "soundhandler.hpp"
 #include "scenehandler.hpp"
 
+//@TODO: move all file-related stuff out of Scene-class
 class Scene
 {
 public:
@@ -15,7 +16,7 @@ public:
     typedef std::vector<DrawableList*> ListOfDrawableLists;
     
     Scene(SceneHandler& sh
-         ,UserEventHandler* u
+         ,std::shared_ptr<UserEventHandler> u
          ,sf::Vector2u window_size
          ,const std::string& window_title);
     virtual ~Scene();
@@ -63,10 +64,12 @@ protected:
     
 private:
     void handleWindowEvent(sf::RenderWindow& w);
+    void handleDebugWindowEvent(sf::RenderWindow& w);
     void setUp();
     void update();
     void draw(sf::RenderWindow& w);
     void drawDebugThings(sf::RenderWindow& w) const;
+    void drawDefaultSceneDebugThings(sf::RenderWindow& w) const;
     
     sf::Texture loadTexture(const std::string& filename);
     AnimatedGameObject::TextureList loadAnimation(const std::string& folder_path

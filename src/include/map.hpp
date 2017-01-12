@@ -12,24 +12,22 @@ public:
        ,const std::string& sprite_folder_path
        ,const std::string& image_file_extension);
     
-    bool update() override { return true; }; // nothing to be updated in the Map
-    
     short unsigned getPathIndexForEnemy();
     const sf::Vector2f& getWaypoint(short unsigned path_index, size_t waypoint_index) const;
     bool isWaypointIndexInBound(short unsigned path_index, size_t waypoint_index) const;
     bool onMap(const sf::Vector2f& coordinate) const;
     
-protected:
-    void drawOtherDebugThings(sf::RenderWindow& w) const override;
-    
-private:
     ///////////////////////////////////////////////////
     /// \brief Load the enemy path
     /// Syntax: One path in one line like: "(x,y),(x,y)"...
     /// \return was the loading succesful?
     ///////////////////////////////////////////////////
-    bool loadEnemyPathFromFile();
+    bool loadEnemyPathsFromFile();
     
+protected:
+    void drawOtherDebugThings(sf::RenderWindow& w) const override;
+    
+private:
     TowerDefenceScene*                     currentScene;
     std::vector<std::vector<sf::Vector2f>> enemyPaths;
     short unsigned                         pathIndexOfLastEnemy = 0;

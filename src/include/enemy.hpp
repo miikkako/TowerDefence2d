@@ -54,10 +54,11 @@ public:
                     ,float health
                     ,float speed);
     
-    bool update() override;
     int getPointsFromKill() override;
     
 protected:
+    bool update() override;
+    
     ////////////////////////////////////////////////////////////
     /// \brief Move the Enemy through the Map's waypoints smoothly
     /// \return has the Enemy reached its goal?
