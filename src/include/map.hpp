@@ -8,6 +8,9 @@ class TowerDefenceScene;
 class Map : public AnimatedGameObject
 {
 public:
+    typedef std::vector<sf::Vector2f> EnemyPath;
+    typedef std::vector<EnemyPath> EnemyPathsList;
+    
     Map(TowerDefenceScene* current_scene
        ,const std::string& sprite_folder_path
        ,const std::string& image_file_extension);
@@ -25,11 +28,17 @@ public:
     bool loadEnemyPathsFromFile();
     
 protected:
-    void drawOtherDebugThings(sf::RenderWindow& w) const override;
+    void drawOtherDebugThings(sf::RenderWindow& w) override;
+    void drawDebugTooltip(sf::RenderWindow& w, const sf::Font& f) const override
+    { (void) w; (void) f; }; // disable map's tooltip for now
     
 private:
+    void drawWaypoints(sf::RenderWindow& w) const;
+    void initializeMap();
+    void makeReversePaths(); // this method constructs a reverse path for every path
+    
     TowerDefenceScene*                     currentScene;
-    std::vector<std::vector<sf::Vector2f>> enemyPaths;
+    EnemyPathsList                         enemyPaths;
     short unsigned                         pathIndexOfLastEnemy = 0;
     std::string                            mapName;
     std::string                            contentFolderPath;

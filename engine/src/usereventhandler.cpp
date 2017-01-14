@@ -7,67 +7,85 @@ UserEventHandler::UserEventHandler(SceneHandler& sh, bool use_virtual_debug_meth
         ,useVirtualDebugMethods(use_virtual_debug_methods)
 { }
 
-void UserEventHandler::handleWindowEvent(sf::RenderWindow& w)
+void UserEventHandler::handleAllWindowEvents(sf::RenderWindow& w)
 {
-    sf::Event e;
-    while(w.pollEvent(e)) {
-        if(e.type == sf::Event::Closed) {
+    // Get the current mouse position in the window
+    sf::Vector2i pixel_pos(sf::Mouse::getPosition(w));
+    // Convert it to world coordinates and usable through this class
+    mouseWorldPos = w.mapPixelToCoords(pixel_pos);
+    while(w.pollEvent(event)) {
+        if(event.type == sf::Event::Closed) {
             w.close();
-        } else if(e.type == sf::Event::Resized) {
+        } else if(event.type == sf::Event::Resized) {
             
-        } else if(e.type == sf::Event::MouseMoved) {
-            this->handleMouseMoved(e);
+        } else if(event.type == sf::Event::MouseMoved) {
+            this->handleMouseMoved();
+            if(sceneHandler.DEBUG)
+                _defaultHandleMouseMovedDebug();
             if(useVirtualDebugMethods)
-                this->handleMouseMovedDebug(e);
-        } else if(e.type == sf::Event::MouseButtonPressed) {
-            this->handleMouseButtonPressed(e);
+                this->handleMouseMovedDebug();
+        } else if(event.type == sf::Event::MouseButtonPressed) {
+            this->handleMouseButtonPressed();
+            if(sceneHandler.DEBUG)
+                _defaultHandleMouseButtonPressedDebug();
             if(useVirtualDebugMethods)
-                this->handleMouseButtonPressedDebug(e);
-        } else if(e.type == sf::Event::KeyPressed) {
-            this->handleKeyPressed(e);
+                this->handleMouseButtonPressedDebug();
+        } else if(event.type == sf::Event::KeyPressed) {
+            this->handleKeyPressed();
+            if(sceneHandler.DEBUG)
+                _defaultHandleKeyPressedDebug();
             if(useVirtualDebugMethods)
-                this->handleKeyPressedDebug(e);
+                this->handleKeyPressedDebug();
         }
     }
 }
 
-void UserEventHandler::handleDebugWindowEvent(sf::RenderWindow& w)
+void UserEventHandler::drawDebugThings(sf::RenderWindow& w)
 {
-    sf::Event e;
-    while(w.pollEvent(e)) {
-        if(e.type == sf::Event::MouseMoved) {
-            defaultHandleMouseMovedDebug(e);
-        } else if(e.type == sf::Event::MouseButtonPressed) {
-            defaultHandleMouseButtonPressedDebug(e);
-        } else if(e.type == sf::Event::KeyPressed) {
-            defaultHandleKeyPressedDebug(e);
-        }
-    }
+    _defaultOnDrawDebugThings(w);
+    this->onDrawDebugThings(w);
 }
 
-void UserEventHandler::defaultHandleMouseMovedDebug(sf::Event& e)
+void UserEventHandler::_defaultHandleMouseMovedDebug()
 {
-    (void) e;
-    // @TODO: a tooltip for drawing info about gameobjects
+    
 }
 
-void UserEventHandler::defaultHandleMouseButtonPressedDebug(sf::Event& e)
+void UserEventHandler::_defaultHandleMouseButtonPressedDebug()
 {
-    (void) e;
+    
 }
 
-void UserEventHandler::defaultHandleKeyPressedDebug(sf::Event& e)
+void UserEventHandler::_defaultHandleKeyPressedDebug()
 {
-    if(e.key.code == sf::Keyboard::P) {
+    if(event.key.code == sf::Keyboard::P) {
         sceneHandler.pauseLogic();
-    } else if(e.key.code == sf::Keyboard::S) {
+    } else if(event.key.code == sf::Keyboard::S) {
         sceneHandler.printSceneDebug();
-    } else if(e.key.code == sf::Keyboard::D) {
+    } else if(event.key.code == sf::Keyboard::D) {
         sceneHandler.toggleSceneDebugDraw();
-    } else if(e.key.code == sf::Keyboard::A) {
+    } else if(event.key.code == sf::Keyboard::Z) {
         sceneHandler.decreaseUpdateFPS();
-    } else if(e.key.code == sf::Keyboard::Z) {
+    } else if(event.key.code == sf::Keyboard::A) {
         sceneHandler.increaseUpdateFPS();
     }
 }
 
+void UserEventHandler::_defaultOnDrawDebugThings(sf::RenderWindow& w)
+{
+    _drawMousePosition(w);
+}
+
+void UserEventHandler::_drawMousePosition(sf::RenderWindow& w)
+{
+    sf::Vector2i world_pos(mouseWorldPos);
+    sf::Text t;
+    t.setString(std::to_string(world_pos.x) + "," + std::to_string(world_pos.y));
+    t.setCharacterSize(17);
+    t.setStyle(sf::Text::Regular);
+    t.setFillColor(sf::Color::Black);
+    t.setFont(sceneHandler.scene->getDefaultFont());
+    AnimatedGameObject::setTextOriginToCenter(t);
+    t.setPosition(world_pos.x, world_pos.y - 10);
+    w.draw(t);
+}

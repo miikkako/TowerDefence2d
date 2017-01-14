@@ -19,8 +19,8 @@ add_executable(${EXECUTABLE_NAME} ${SOURCES})
 # Set the path to findSFML.cmake-file, which is needed by find_package()
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules")
 
-# Find SFML and its modules. Require version 2.3
-find_package(SFML 2.3 REQUIRED system window graphics network audio)
+# Find SFML and its modules
+find_package(SFML 2.4 REQUIRED system window graphics network audio)
 
 if(SFML_FOUND)
     # Bring the project and SFML header files into the project

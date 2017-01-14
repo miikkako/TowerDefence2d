@@ -7,9 +7,11 @@ TdUserEventHandler::TdUserEventHandler(SceneHandler& sh
         ,currentScene(current_scene)
 { }
 
-void TdUserEventHandler::handleKeyPressedDebug(sf::Event& e)
+void TdUserEventHandler::handleKeyPressedDebug()
 {
-    if(e.key.code == sf::Keyboard::M) {
+    if(event.key.code == sf::Keyboard::M) {
         currentScene->getMap()->loadEnemyPathsFromFile();
+    } else if(event.key.code == sf::Keyboard::E) {
+        currentScene->spawnNewRandomEnemy();
     }
 }

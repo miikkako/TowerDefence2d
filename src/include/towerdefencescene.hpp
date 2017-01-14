@@ -21,6 +21,7 @@ public:
     //std::vector<std::shared_ptr<Tower>> baseTowerList;
     void enemyThrough(Enemy* e);
     Map* getMap() { return map.get(); };
+    void spawnNewRandomEnemy();
     
     bool           drawHealthBars;
     sf::Color      healthBarColor;

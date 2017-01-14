@@ -12,10 +12,11 @@ TowerDefenceScene::TowerDefenceScene(SceneHandler& sh, const std::string& map_na
         :Scene(sh
               ,std::shared_ptr<UserEventHandler>(new TdUserEventHandler(sh, this, true))
               ,sf::Vector2u(1280, 720)
-              ,"Defend!")
+              ,"Defend!"
+              ,"../engine/")
         ,drawHealthBars             (true)
         ,healthBarColor             (sf::Color::Green)
-        ,healthBarSize              (sf::Vector2f(45, 8))
+        ,healthBarSize              (sf::Vector2f(40, 6))
         ,beginLevelsAutomatically   (true)
         ,towerResellValueMultiplier (0.5f)
         ,maxAllowedEnemiesThrough   (10)
@@ -33,16 +34,18 @@ TowerDefenceScene::TowerDefenceScene(SceneHandler& sh, const std::string& map_na
     
     /* Configure animations and sounds and towerdefence-stuff below */
     std::string first_enemy_name(this->loadAndSaveAnimation(ENEMIES+"FirstEnemy", "png"));
-    
-    enemies.push_back(std::shared_ptr<Enemy>(new MapWaypointEnemy(this,
-            getAnimation(first_enemy_name), 5, map->getPathIndexForEnemy(), 100.f, 1.f)));
-    enemies.push_back(std::shared_ptr<Enemy>(new MapWaypointEnemy(this,
-            getAnimation(first_enemy_name), 5, map->getPathIndexForEnemy(), 100.f, 1.f)));
 }
 
 void TowerDefenceScene::enemyThrough(Enemy* e)
 {
-    this->getOs() << "Enemy " << *e << " through!" << std::endl;
-    enemiesThrough -= 1;
+    this->getOs() << *e << " through!" << std::endl;
+    enemiesThrough += 1;
+}
+
+void TowerDefenceScene::spawnNewRandomEnemy()
+{
+    // @TODO: make this method better
+    enemies.push_back(std::shared_ptr<Enemy>(new MapWaypointEnemy(this,
+            getAnimation("FirstEnemy"), 5, map->getPathIndexForEnemy(), 100.f, 1.f)));
 }
 

@@ -4,8 +4,6 @@ SceneHandler::SceneHandler(const bool DEBUG)
     :DEBUG                       (DEBUG)
     ,logicPaused                 (false)
     ,drawSceneDebugThings        (true)
-    ,boundingBoxColor            (sf::Color::Red)
-    ,gameobjectOriginColor       (sf::Color::Cyan)
     ,lowSoundVolume              (10)
     ,mediumSoundVolume           (30)
     ,highSoundVolume             (60)
@@ -13,13 +11,16 @@ SceneHandler::SceneHandler(const bool DEBUG)
     ,maxSoundsSimultaneously     (100)
     ,updateFPS                   (100)
     ,FPSchangeStep               (1)
-    /* Members below are not intended to be modified */
+    // Members below are not intended to be modified
 //    ,updateInterval(sf::seconds(1.f / updateFPS))
     ,window(sf::VideoMode(0, 0), "")
     ,soundHandler(SoundHandler(maxSoundsSimultaneously))
 {
-    /* "seed" the random numbers (for the parts of the game to get a random value).
-     * Note that this is a weak random number generator */
+    // Ensure that debug-things are not drawn if DEBUG mode is off
+    if(drawSceneDebugThings && !DEBUG)
+        drawSceneDebugThings = false;
+    // "seed" the random numbers (for the parts of the game to get a random value).
+    // Note that this is a weak random number generator
     srand(static_cast<unsigned>(time(0)));
 }
 
@@ -31,19 +32,25 @@ void SceneHandler::run()
     this->setUpdateFPS();
     while(window.isOpen())
     {
+        // 1. Handle user events and the handle user debug events
+        // 2. Clear the window
+        // 3. Draw normal things and then draw debug things on top
+        // 4. Display everything
+        // 5. Delete played sounds
+        // 6. Update logic if it's not paused
+        scene->userEventHandler->handleAllWindowEvents(window);
         window.clear();
-        scene->handleWindowEvent(window); // event handling could run in a different thread
         scene->draw(window);
-        if(DEBUG)
+        if(drawSceneDebugThings)
         {
-            if(drawSceneDebugThings)
-                scene->drawDebugThings(window);
-            scene->handleDebugWindowEvent(window);
-            drawSceneHandlerDebugThings();
+            scene->drawDebugThings(window);
+            _drawSceneHandlerDebugThings();
+            scene->userEventHandler->drawDebugThings(window);
         }
         window.display(); // window.display blocks if its framerate-limit is exceeded
+        // @TODO: ¿event handling could run in a different thread?
         soundHandler.deletePlayedSounds();
-        if(DEBUG && !logicPaused)
+        if(!logicPaused)
             scene->update();
     }
     os << "...Exiting" << std::endl;
@@ -81,23 +88,9 @@ void SceneHandler::decreaseUpdateFPS()
     setUpdateFPS();
 }
 
-void SceneHandler::drawSceneHandlerDebugThings()
+void SceneHandler::_drawSceneHandlerDebugThings()
 {
-    drawMousePosition();
+    // e.g. draw FPS on screen
 }
 
-void SceneHandler::drawMousePosition()
-{
-    sf::Vector2i mouse_pos(sf::Mouse::getPosition(window));
-    os << mouse_pos << std::endl;
-    sf::Text t;
-    t.setString(std::to_string(mouse_pos.x) + "," + std::to_string(mouse_pos.y));
-    t.setCharacterSize(15);
-    t.setStyle(sf::Text::Regular);
-    t.setFillColor(sf::Color::Black);
-    t.setFont(scene->getFont("Regular.otf"));
-    AnimatedGameObject::setTextOriginToCenter(t);
-    sf::Vector2f float_pos(mouse_pos);
-    t.setPosition(float_pos.x, float_pos.y - 10);
-    window.draw(t);
-}
+

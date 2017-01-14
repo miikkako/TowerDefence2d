@@ -24,7 +24,7 @@ sf::RectangleShape* Enemy::createHealthBarAndReturnRef()
     // Then, return the reference pointer so that it can be accessed.
     std::shared_ptr<sf::RectangleShape> rectangle(new sf::RectangleShape(currentScene->healthBarSize));
     rectangle->setFillColor(currentScene->healthBarColor);
-    float healthbar_vertical_offset = sprite.getLocalBounds().height * 1.f;
+    float healthbar_vertical_offset(sprite.getLocalBounds().height * 1.f);
     this->setShapeOriginToCenter(rectangle.get());
     rectangle->setPosition(sprite.getPosition().x, sprite.getPosition().y - healthbar_vertical_offset);
     this->addChildDrawable(rectangle);
@@ -88,12 +88,12 @@ bool MapWaypointEnemy::moveWithWaypointsAndCheckIfGoaled()
 /* Derived classes */
 bool MapWaypointEnemy::update()
 {
-    if(this->moveWithWaypointsAndCheckIfGoaled())
+    if(moveWithWaypointsAndCheckIfGoaled())
     {
         currentScene->enemyThrough(this);
         return false;
     }
-    this->updateHealthbar();
+    updateHealthbar();
     return true;
 }
 

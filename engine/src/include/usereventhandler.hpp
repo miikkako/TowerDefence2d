@@ -10,27 +10,38 @@ class UserEventHandler
 public:
     UserEventHandler(SceneHandler& sh, bool use_virtual_debug_methods);
     
+    const sf::Vector2f& getMouseWorldPos() const { return mouseWorldPos; };
+    
     friend class SceneHandler;
     friend class Scene;
     
 protected:
-    virtual void handleMouseMoved(sf::Event& e) { (void) e; };
-    virtual void handleMouseButtonPressed(sf::Event& e) { (void) e; };
-    virtual void handleKeyPressed(sf::Event& e) { (void) e; };
+    virtual void handleMouseMoved() {  };
+    virtual void handleMouseButtonPressed() {  };
+    virtual void handleKeyPressed() {  };
     
     // These debug-methods get called if the member useVirtualDebugMethods is true
-    virtual void handleMouseMovedDebug(sf::Event& e) { (void) e; };
-    virtual void handleMouseButtonPressedDebug(sf::Event& e) { (void) e; };
-    virtual void handleKeyPressedDebug(sf::Event& e) { (void) e; };
+    virtual void handleMouseMovedDebug() {  };
+    virtual void handleMouseButtonPressedDebug() {  };
+    virtual void handleKeyPressedDebug() {  };
+    virtual void onDrawDebugThings(sf::RenderWindow& w) { (void) w; };
+    
+    sf::Event     event; // this event gets polled every time the handleAllWindowEvents is called
+    sf::Vector2f  mouseWorldPos; // mouse position gets updated every time the handleAllWindowEvents is called
     
 private:
-    void handleWindowEvent(sf::RenderWindow& w); // Scene calls this
-    void handleDebugWindowEvent(sf::RenderWindow& w); // Scene calls this
+    void handleAllWindowEvents(sf::RenderWindow& w); // SceneHandler calls this
+    void drawDebugThings(sf::RenderWindow& w); // SceneHandler calls this
     
-    // the default Debug-methods only get called when the SceneHandler's DEBUG-mode is on
-    virtual void defaultHandleMouseMovedDebug(sf::Event& e);
-    virtual void defaultHandleMouseButtonPressedDebug(sf::Event& e);
-    virtual void defaultHandleKeyPressedDebug(sf::Event& e);
+    // the default Debug-methods can only get called when the SceneHandler's DEBUG-mode is on
+    void _defaultHandleMouseMovedDebug();
+    void _defaultHandleMouseButtonPressedDebug();
+    void _defaultHandleKeyPressedDebug();
+    void _defaultOnDrawDebugThings(sf::RenderWindow& w);
+    
+    // Helper methods
+    void _drawMousePosition(sf::RenderWindow& w);
+    void _drawGameObjectTooltipOnMouseOver(sf::RenderWindow& w);
     
     SceneHandler& sceneHandler;
     bool          useVirtualDebugMethods;

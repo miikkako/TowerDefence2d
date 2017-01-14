@@ -3,27 +3,24 @@
 Scene::Scene(SceneHandler& sh
             ,std::shared_ptr<UserEventHandler> u
             ,sf::Vector2u window_size
-            ,const std::string& window_title)
-    :sceneHandler      (sh)
-    ,userEventHandler  (u)
-    ,windowSize        (window_size)
-    ,title             (window_title)
-{ }
+            ,const std::string& window_title
+            ,const std::string& engine_directory_path)
+    :sceneHandler         (sh)
+    ,userEventHandler     (u)
+    ,windowSize           (window_size)
+    ,title                (window_title)
+    ,engineDirectoryPath  (engine_directory_path)
+    ,engineAssetsPath     (engine_directory_path + "assets/")
+    ,defaultFontFilename  ("Default.otf")
+{
+    // Load a default font to be easily used throughout the engine and the user of the engine
+    loadAndSaveDefaultFont();
+}
 
 Scene::~Scene()
 {
     this->getOs() << "In the destructor of Scene \"" << typeid(*this).name()
             << "\", the destructor is not yet implemented" << std::endl;
-}
-
-void Scene::handleWindowEvent(sf::RenderWindow& w)
-{
-    userEventHandler->handleWindowEvent(w);
-}
-
-void Scene::handleDebugWindowEvent(sf::RenderWindow& w)
-{
-    userEventHandler->handleDebugWindowEvent(w);
 }
 
 void Scene::setUp()
@@ -67,6 +64,9 @@ void Scene::draw(sf::RenderWindow& w)
                 iter = (*list_iter)->erase(iter);
                 --iter;
             }
+            (*iter)->onMouseOverDraw(w
+                                    ,getDefaultFont()
+                                    ,userEventHandler->getMouseWorldPos());
         }
     }
     for(auto list_iter = allOtherDrawables.begin(); list_iter != allOtherDrawables.end();
@@ -86,16 +86,18 @@ void Scene::drawDebugThings(sf::RenderWindow& w) const
     {
         for(auto iter = (*list_iter)->begin(); iter != (*list_iter)->end(); ++iter)
         {
-            (*iter)->drawBoundingBox(w, sceneHandler.boundingBoxColor);
-            (*iter)->drawOrigin(w, sceneHandler.gameobjectOriginColor);
+            (*iter)->drawDebugThings(w);
             (*iter)->drawOtherDebugThings(w);
+            (*iter)->onMouseOverDebugDraw(w
+                                         ,getDefaultFont()
+                                         ,userEventHandler->getMouseWorldPos());
         }
     }
-    drawDefaultSceneDebugThings(w);
+    _drawDefaultSceneDebugThings(w);
     this->drawSceneDebugThings(w);
 }
 
-void Scene::drawDefaultSceneDebugThings(sf::RenderWindow& w) const
+void Scene::_drawDefaultSceneDebugThings(sf::RenderWindow& w) const
 {
     (void) w;
 }
@@ -141,55 +143,6 @@ void Scene::addDrawableListToBeDrawn(DrawableList* list)
     allOtherDrawables.push_back(list);
 }
 
-std::string Scene::loadAndSaveAnimation(const std::string& folder_path
-                                       ,const std::string file_extension)
-{
-    // Extract the folder name from the path first
-    std::string folder_name = extractFilename(folder_path);
-    animationMap.insert(std::make_pair(folder_name
-                                       ,this->loadAnimation(folder_path
-                                                           ,file_extension)));
-    sceneHandler.os << "The animation was saved to the animation-map as \""
-            << folder_name << "\"" << std::endl;
-    return folder_name;
-}
-
-std::string Scene::loadAndSaveSoundbuffer(const std::string& file_path)
-{
-    std::string filename = extractFilename(file_path);
-    soundbufferMap.insert(std::make_pair(filename, this->loadSoundbuffer(file_path)));
-    sceneHandler.os << "The sound buffer was saved to the sound buffer -map as \""
-            << filename << "\"" << std::endl;
-    return filename;
-}
-
-std::string Scene::loadAndSaveFont(const std::string& file_path)
-{
-    std::string filename = extractFilename(file_path);
-    fontMap.insert(std::make_pair(filename, this->loadFont(file_path)));
-    sceneHandler.os << "The font was saved to the font-map as \""
-            << filename << "\"" << std::endl;
-    return filename;
-}
-
-sf::Font& Scene::getFont(const std::string& font_name)
-{
-    try {
-        return fontMap.at(font_name);
-    } catch (std::exception& e) {
-        throw std::invalid_argument("Scene::getFont(\"" + font_name + "\").");
-    }
-}
-
-sf::SoundBuffer& Scene::getSoundbuffer(const std::string& soundbuffer_name)
-{
-    try {
-        return soundbufferMap.at(soundbuffer_name);
-    } catch (std::exception& e) {
-        throw std::invalid_argument("Scene::getSoundbuffer(\"" + soundbuffer_name + "\").");
-    }
-}
-
 AnimatedGameObject::TextureList* Scene::getAnimation(const std::string& animation_name)
 {
     try {
@@ -199,20 +152,86 @@ AnimatedGameObject::TextureList* Scene::getAnimation(const std::string& animatio
     }
 }
 
+const sf::SoundBuffer& Scene::getSoundbuffer(const std::string& soundbuffer_name) const
+{
+    try {
+        return soundbufferMap.at(soundbuffer_name);
+    } catch (std::exception& e) {
+        throw std::invalid_argument("Scene::getSoundbuffer(\"" + soundbuffer_name + "\").");
+    }
+}
+
+const sf::Font& Scene::getDefaultFont() const noexcept
+{
+    return getFont(defaultFontFilename);
+}
+
+const sf::Font& Scene::getFont(const std::string& font_name) const
+{
+    try {
+        return fontMap.at(font_name);
+    } catch (std::exception& e) {
+        throw std::invalid_argument("Scene::getFont(\"" + font_name + "\").");
+    }
+}
+
+std::string Scene::loadAndSaveAnimation(const std::string& folder_path
+                                       ,const std::string file_extension)
+{
+    // Extract the folder name from the path first
+    std::string folder_name = extractFilename(folder_path);
+    AnimatedGameObject::TextureList anim = this->loadAnimation(folder_path, file_extension);
+    animationMap.insert(std::make_pair(folder_name, anim));
+    sceneHandler.os << "The animation was saved to the animation-map as \""
+            << folder_name << "\"" << std::endl;
+    return folder_name;
+}
+
+std::string Scene::loadAndSaveSoundbuffer(const std::string& file_path)
+{
+    std::string filename = extractFilename(file_path);
+    sf::SoundBuffer sb(this->loadSoundbuffer(file_path));
+    soundbufferMap.insert(std::make_pair(filename, sb));
+    sceneHandler.os << "The sound buffer was saved to the sound buffer -map as \""
+            << filename << "\"" << std::endl;
+    return filename;
+}
+
+std::string Scene::loadAndSaveFont(const std::string& file_path)
+{
+    std::string filename = extractFilename(file_path);
+    sf::Font font(this->loadFont(file_path));
+    fontMap.insert(std::make_pair(filename, font));
+    sceneHandler.os << "The font was saved to the font-map as \""
+            << filename << "\"" << std::endl;
+    return filename;
+}
+
+void Scene::loadAndSaveDefaultFont() noexcept
+{
+    sf::Font font;
+    std::string filepath(engineAssetsPath + "fonts/" + defaultFontFilename);
+    try {
+        font = this->loadFont(filepath);
+        sceneHandler.os << "Engine default font was succesfully loaded from \""
+            << filepath << "\" (relative to engine sources). "
+            << "It can accessed from Scene::getDefaultFont" << std::endl;
+    } catch (const std::invalid_argument& e) {
+        font = sf::Font();
+        sceneHandler.os << "Failed to load a default font \"" << filepath
+            << "\". Reason: " << e.what() << ". "
+            << "Now, the default font is saved as an empty sf::Font. "
+            << "That is, some debugging texts and the use of "
+            << "Scene::getDefaultFont do not necessarily work! " << std::endl;
+    }
+    fontMap.insert(std::make_pair(defaultFontFilename, font));
+}
+
 AnimatedGameObject::TextureList* Scene::loadAndSaveAndGetAnimation(const std::string& folder_path
-                                                                  ,const std::string file_extension)
+                                                                        ,const std::string file_extension)
 {
     std::string folder_name = this->loadAndSaveAnimation(folder_path, file_extension);
     return this->getAnimation(folder_name);
-}
-
-sf::Texture Scene::loadTexture(const std::string& file_path)
-{
-    sf::Texture t;
-    if(!t.loadFromFile(file_path))
-        throw std::invalid_argument("Texture \"" + file_path + "\" not found");
-    sceneHandler.os << "Loaded texture \"" + file_path << "\"" << std::endl;
-    return t;
 }
 
 AnimatedGameObject::TextureList Scene::loadAnimation(const std::string& folder_path
@@ -241,9 +260,18 @@ AnimatedGameObject::TextureList Scene::loadAnimation(const std::string& folder_p
         }
         ++loop_index;
     }
-    sceneHandler.os << "Succesfully loaded animation from folder \"" << folder_path
-            << "\"" << std::endl;
+    sceneHandler.os <<  "Succesfully loaded animation from folder \""
+            << folder_path << "\"" << std::endl;
     return ret;
+}
+
+sf::Texture Scene::loadTexture(const std::string& file_path)
+{
+    sf::Texture t;
+    if(!t.loadFromFile(file_path))
+        throw std::invalid_argument("Texture \"" + file_path + "\" not found");
+    sceneHandler.os << "Loaded texture \"" + extractFilename(file_path) << "\". ";
+    return t;
 }
 
 sf::SoundBuffer Scene::loadSoundbuffer(const std::string& file_path)
@@ -259,7 +287,7 @@ sf::Font Scene::loadFont(const std::string& file_path)
 {
     sf::Font f;
     if(!f.loadFromFile(file_path))
-        throw std::invalid_argument("Font\"" + file_path + "\" not found");
+        throw std::invalid_argument("Font \"" + file_path + "\" not found");
     sceneHandler.os << "Loaded font \"" + file_path << "\"" << std::endl;
     return f;
 }

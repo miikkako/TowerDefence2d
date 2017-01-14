@@ -47,6 +47,11 @@ void AnimatedGameObject::removeChildDrawable(sf::Shape* obj_ptr)
     }
 }
 
+bool AnimatedGameObject::insideBoundingBox(const sf::Vector2f& coord) const
+{
+    return sprite.getGlobalBounds().contains(coord);
+}
+
 void AnimatedGameObject::move(sf::Vector2f&& movement)
 {
     sprite.move(movement);
@@ -62,8 +67,8 @@ void AnimatedGameObject::setRotation(const sf::Vector2f& direction)
 
 bool AnimatedGameObject::draw(sf::RenderWindow& w)
 {
-    this->updateAnimation();
-    this->onDraw(w);
+    updateAnimation();
+    onDraw(w);
     return true;
 }
 
@@ -74,24 +79,85 @@ void AnimatedGameObject::onDraw(sf::RenderWindow& w)
         w.draw(**iter);
 }
 
-void AnimatedGameObject::drawBoundingBox(sf::RenderWindow& w, const sf::Color& c) const
+void AnimatedGameObject::drawDebugThings(sf::RenderWindow& w) const
+{
+    drawBoundingBox(w);
+    drawOrigin(w);
+}
+
+void AnimatedGameObject::drawBoundingBox(sf::RenderWindow& w) const
 {
     sf::RectangleShape bbox(sf::Vector2f(sprite.getLocalBounds().width,
                                          sprite.getLocalBounds().height));
     bbox.setFillColor(sf::Color::Transparent);
     bbox.setOutlineThickness(2);
-    bbox.setOutlineColor(c);
+    bbox.setOutlineColor(sf::Color::Red);
     bbox.setPosition(sprite.getGlobalBounds().left, sprite.getGlobalBounds().top);
     w.draw(bbox);
 }
 
-void AnimatedGameObject::drawOrigin(sf::RenderWindow& w, const sf::Color& c) const
+void AnimatedGameObject::drawOrigin(sf::RenderWindow& w) const
 {
     sf::CircleShape circle = sf::CircleShape(3);
-    circle.setFillColor(c);
-    this->setShapeOriginToCenter(&circle);
+    circle.setFillColor(sf::Color::Cyan);
+    setShapeOriginToCenter(&circle);
     circle.setPosition(sprite.getPosition());
     w.draw(circle);
+}
+
+void AnimatedGameObject::onMouseOverDebugDraw(sf::RenderWindow& w
+                                             ,const sf::Font& f
+                                             ,const sf::Vector2f& mouse_world_pos) const
+{
+    if(insideBoundingBox(mouse_world_pos))
+        drawDebugTooltip(w, f);
+}
+
+void AnimatedGameObject::drawDebugTooltip(sf::RenderWindow& w, const sf::Font& f) const
+{
+    // First create the tooltip box and draw it
+    float tooltip_height(100), tooltip_width(150);
+    short unsigned font_size(12), line_spacing(font_size + 2);
+    sf::RectangleShape tooltip_box(sf::Vector2f(tooltip_width, tooltip_height));
+    tooltip_box.setFillColor(sf::Color(180,180,180));
+    tooltip_box.setOutlineThickness(2);
+    tooltip_box.setOutlineColor(sf::Color::Black);
+    setShapeOriginToCenter(&tooltip_box);
+    tooltip_box.setPosition(sprite.getPosition().x, sprite.getPosition().y - tooltip_height);
+    w.draw(tooltip_box);
+    // Then create the tooltip text
+    sf::Text text;
+    text.setFont(f);
+    text.setCharacterSize(font_size);
+    text.setFillColor(sf::Color::Black);
+    text.setStyle(sf::Text::Regular);
+    // Finally draw different texts
+    text.setString(typeid(*this).name());
+    text.setPosition(tooltip_box.getGlobalBounds().left + 0.02f * tooltip_height,
+                     tooltip_box.getGlobalBounds().top + 0.02f * tooltip_height);
+    w.draw(text);
+    text.setString("Position: " + std::to_string((int)sprite.getPosition().x) + ", "
+                   + std::to_string((int)sprite.getPosition().y));
+    text.setPosition(tooltip_box.getGlobalBounds().left + 0.02f * tooltip_height,
+                     tooltip_box.getGlobalBounds().top + line_spacing);
+    w.draw(text);
+    text.setString("Rotation: " + std::to_string((int)sprite.getRotation()));
+    text.setPosition(tooltip_box.getGlobalBounds().left + 0.02f * tooltip_height,
+                     tooltip_box.getGlobalBounds().top + 2 * line_spacing);
+    w.draw(text);
+    text.setString("Children shapes: " + std::to_string(childrenShapes.size()));
+    text.setPosition(tooltip_box.getGlobalBounds().left + 0.02f * tooltip_height,
+                     tooltip_box.getGlobalBounds().top + 3 * line_spacing);
+    w.draw(text);
+    text.setString("Textures: " + std::to_string(textures->size()));
+    text.setPosition(tooltip_box.getGlobalBounds().left + 0.02f * tooltip_height,
+                     tooltip_box.getGlobalBounds().top + 4 * line_spacing);
+    w.draw(text);
+    text.setString("Anim interval: " + std::to_string(animationTickInterval));
+    text.setPosition(tooltip_box.getGlobalBounds().left + 0.02f * tooltip_height,
+                     tooltip_box.getGlobalBounds().top + 5 * line_spacing);
+    w.draw(text);
+    // @TODO: Get additional texts from derived classes?
 }
 
 void AnimatedGameObject::updateAnimation()
@@ -100,7 +166,7 @@ void AnimatedGameObject::updateAnimation()
 //        throw std::runtime_error(std::string("Object ") + typeid(*this).name() + "'s 'textures'-member points to null");
     if(animationTickInterval > 0 && ++ticksFromLastFrameUpdate >= animationTickInterval)
     {
-        sprite.setTexture(this->getNextTexture(), true);
+        sprite.setTexture(getNextTexture(), true);
         this->setOriginToCenter();
         ticksFromLastFrameUpdate = 0;
     }
@@ -136,7 +202,7 @@ void AnimatedGameObject::setOriginToCenter()
 void AnimatedGameObject::setAnimation(TextureList* t)
 {
     textures = t;
-    this->initializeAnimation();
+    initializeAnimation();
 }
 
 void AnimatedGameObject::setShapeOriginToCenter(sf::Shape* s)
@@ -153,19 +219,33 @@ void AnimatedGameObject::setTextOriginToCenter(sf::Text& s)
 
 
 /* Explosions, etc. */
-StaticAnimation::StaticAnimation(float x_pos, float y_pos, TextureList* t,
-    short unsigned animation_loops_lifetime, short unsigned animation_tick_interval,
-    float rotation_angle_degrees, bool centerize_origin)
-        :AnimatedGameObject(x_pos, y_pos, t, animation_tick_interval,
-            rotation_angle_degrees, centerize_origin)
+StaticAnimation::StaticAnimation(float x_pos
+                                ,float y_pos
+                                ,TextureList* t
+                                ,short unsigned animation_loops_lifetime
+                                ,short unsigned animation_tick_interval
+                                ,float rotation_angle_degrees
+                                ,bool centerize_origin)
+        :AnimatedGameObject(x_pos
+                           ,y_pos
+                           ,t
+                           ,animation_tick_interval
+                           ,rotation_angle_degrees
+                           ,centerize_origin)
         ,animationLoopsLifetime(animation_loops_lifetime)
 { }
 
-StaticAnimation::StaticAnimation(sf::Vector2f pos, TextureList* t,
-    short unsigned animation_loops_lifetime, short unsigned animation_tick_interval,
-    float rotation_angle_degrees, bool centerize_origin)
-        :AnimatedGameObject(pos, t, animation_tick_interval,
-            rotation_angle_degrees, centerize_origin)
+StaticAnimation::StaticAnimation(const sf::Vector2f pos
+                                ,TextureList* t
+                                ,short unsigned animation_loops_lifetime
+                                ,short unsigned animation_tick_interval
+                                ,float rotation_angle_degrees
+                                ,bool centerize_origin)
+        :AnimatedGameObject(pos
+                           ,t
+                           ,animation_tick_interval
+                           ,rotation_angle_degrees
+                           ,centerize_origin)
         ,animationLoopsLifetime(animation_loops_lifetime)
 { }
 
@@ -174,8 +254,8 @@ bool StaticAnimation::draw(sf::RenderWindow& w)
     /* First, check if the animation has lived enough */
     if(animationLoopsLifetime > 0 && currentLoop++ > animationLoopsLifetime)
         return false;
-    this->updateAnimation();
-    this->onDraw(w);
+    updateAnimation();
+    onDraw(w);
     return true;
 }
 

@@ -69,7 +69,7 @@ public:
                       ,float rotation_angle_degrees = 0
                       ,bool centerize_origin = true);
     
-    sf::Sprite& getSprite() { return sprite; };
+    bool insideBoundingBox(const sf::Vector2f& coord) const;
     
     ////////////////////////////////////////////////////////////
     /// \brief Add a drawable and movable shape to be attached to the parent object
@@ -95,18 +95,37 @@ private:
     ////////////////////////////////////////////////////////////
     virtual bool draw(sf::RenderWindow& w);
 //    bool otherDrawMethodThatIsNotBoundToGameTicks(sf::RenderWindow& w);?
-    
-    void drawBoundingBox(sf::RenderWindow& w, const sf::Color& c) const; // this has much overhead
-    void drawOrigin(sf::RenderWindow& w, const sf::Color& c) const; // this has much overhead
     void initializeAnimation();
     void onDraw(sf::RenderWindow& w);
     void updateAnimation();
     sf::Texture& getNextTexture();
     
+    // Debugging methods, only called if DEBUG mode is on
+    void drawDebugThings(sf::RenderWindow& w) const;
+    void drawBoundingBox(sf::RenderWindow& w) const;
+    void drawOrigin(sf::RenderWindow& w) const;
+    void onMouseOverDebugDraw(sf::RenderWindow& w
+                             ,const sf::Font& f
+                             ,const sf::Vector2f& mouse_world_pos) const;
+    
 protected:
     virtual void setUp() {}; // optional
     virtual bool update() { return true; }; // optional, return false = delete object
-    virtual void drawOtherDebugThings(sf::RenderWindow& w) const { (void) w; }; // optional, only called if DEBUG mode is on
+    virtual void drawOtherDebugThings(sf::RenderWindow& w) { (void) w; }; // optional, only called if DEBUG mode is on
+    
+    ////////////////////////////////////////////////////////////
+    /// \brief Draw the object's information on top of the object
+    /// This gets called if DEBUG is on and mouse is hovered over the object (can be overridden)
+    /// This method is called from the UserEventHandler
+    /// \param w the window to draw the tooltip on
+    ////////////////////////////////////////////////////////////
+    virtual void drawDebugTooltip(sf::RenderWindow& w
+                                 ,const sf::Font& f) const;
+    
+    virtual void onMouseOverDraw(sf::RenderWindow& w
+                                 ,const sf::Font& f
+                                 ,const sf::Vector2f& mouse_world_pos)
+    { (void) w; (void) f; (void) mouse_world_pos; };
     
     ////////////////////////////////////////////////////////////
     /// \brief Move the object and its children shapes
@@ -126,7 +145,7 @@ protected:
     
     short unsigned                      currentFrameIndex = 0;
     short unsigned                      ticksFromLastFrameUpdate = 0;
-    TextureList*                        textures; // the corresponding scene handles the memory of these pointers
+    TextureList*                        textures; // Scene handles the memory of the pointers
     short unsigned                      animationTickInterval;
     bool                                centerizeOrigin;
     sf::Sprite                          sprite;

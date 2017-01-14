@@ -18,15 +18,17 @@ public:
     friend class UserEventHandler;
     friend class Scene;
     
-private: // these private methods are only callable by the UserEventHandler base class
+private:
+    // These private methods are only meant to be called only by the UserEventHandler base class
     void pauseLogic() { if(DEBUG) logicPaused = !logicPaused; }; // friend method
     void toggleSceneDebugDraw() { drawSceneDebugThings = !drawSceneDebugThings; };
     void printSceneDebug();
     void setUpdateFPS();
     void increaseUpdateFPS();
     void decreaseUpdateFPS();
-    void drawSceneHandlerDebugThings();
-    void drawMousePosition();
+    
+    // Private methods
+    void _drawSceneHandlerDebugThings();
     
 public:
     /* Initialize the outputstreams in the header file so that they can be modified more easily */

@@ -11,7 +11,7 @@ public:
                       ,TowerDefenceScene* current_scene
                       ,bool use_virtual_debug_methods);
     
-    void handleKeyPressedDebug(sf::Event& e) override;
+    void handleKeyPressedDebug() override;
     
 private:
     TowerDefenceScene* currentScene;

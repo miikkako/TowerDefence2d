@@ -18,7 +18,8 @@ public:
     Scene(SceneHandler& sh
          ,std::shared_ptr<UserEventHandler> u
          ,sf::Vector2u window_size
-         ,const std::string& window_title);
+         ,const std::string& window_title
+         ,const std::string& engine_directory_path);
     virtual ~Scene();
     
     bool getDebugMode() const;
@@ -28,8 +29,10 @@ public:
 //    void                setWindowSize(sf::Vector2u s) { windowSize = s; };
     const std::string&  getTitle()        const       { return title; };
     
-    sf::Font& getFont(const std::string& font_name);
-    sf::SoundBuffer& getSoundbuffer(const std::string& soundbuffer_name);
+    // @TODO: an empty animation getter. i.e. returns empty sf::Textures (So that the animation can be an empty texture)
+    const sf::Font& getDefaultFont() const noexcept;
+    const sf::Font& getFont(const std::string& font_name) const;
+    const sf::SoundBuffer& getSoundbuffer(const std::string& soundbuffer_name) const;
     AnimatedGameObject::TextureList* getAnimation(const std::string& animation_name);
     AnimatedGameObject::TextureList* loadAndSaveAndGetAnimation(const std::string& folder_path
                                                                ,const std::string file_extension);
@@ -60,25 +63,27 @@ protected:
     void addDrawableListToBeDrawn(DrawableList* list);
     
     SceneHandler&                     sceneHandler;
-    std::shared_ptr<UserEventHandler> userEventHandler; // this can be overridden  
+    std::shared_ptr<UserEventHandler> userEventHandler;
     
 private:
-    void handleWindowEvent(sf::RenderWindow& w);
-    void handleDebugWindowEvent(sf::RenderWindow& w);
     void setUp();
     void update();
     void draw(sf::RenderWindow& w);
     void drawDebugThings(sf::RenderWindow& w) const;
-    void drawDefaultSceneDebugThings(sf::RenderWindow& w) const;
+    void _drawDefaultSceneDebugThings(sf::RenderWindow& w) const;
     
     sf::Texture loadTexture(const std::string& filename);
     AnimatedGameObject::TextureList loadAnimation(const std::string& folder_path
                                                  ,const std::string file_extension);
     sf::SoundBuffer loadSoundbuffer(const std::string& file_path);
     sf::Font loadFont(const std::string& file_path);
+    void loadAndSaveDefaultFont() noexcept;
     
     sf::Vector2u                                           windowSize;
     std::string                                            title;
+    std::string                                            engineDirectoryPath;
+    std::string                                            engineAssetsPath;
+    std::string                                            defaultFontFilename;
     std::map<std::string, AnimatedGameObject::TextureList> animationMap;
     std::map<std::string, sf::SoundBuffer>                 soundbufferMap;
     std::map<std::string, sf::Font>                        fontMap;
