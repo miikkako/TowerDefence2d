@@ -8,7 +8,7 @@
 class SceneHandler
 {
 public:
-    explicit SceneHandler(const bool DEBUG);
+    SceneHandler(const bool DEBUG, std::ostream& os);
     // explicit SceneHandler(Scene* starting_scene);
     SceneHandler(const SceneHandler&) = delete;
     SceneHandler& operator=(const SceneHandler&) = delete;
@@ -28,13 +28,14 @@ private:
     void decreaseUpdateFPS();
     
     // Private methods
+    void debugRun(); // debugRun() is callad by run() if DEBUG mode is on
+    void normalRun(); // normalRun() is callad by run() if DEBUG mode is off
     void _drawSceneHandlerDebugThings();
     
 public:
-    /* Initialize the outputstreams in the header file so that they can be modified more easily */
-    std::ostream&               os          = std::cerr; // os for debugging
-    std::ostream&               importantOs = std::cout;
     const bool                  DEBUG;
+    std::ostream&               os;
+    std::ostream&               importantOs = std::cout;
     bool                        logicPaused;
     bool                        drawSceneDebugThings; // @TODO: make things private and usable by friends?
     const sf::Color             boundingBoxColor;

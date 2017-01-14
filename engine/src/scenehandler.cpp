@@ -1,7 +1,8 @@
 #include "include/scenehandler.hpp"
 
-SceneHandler::SceneHandler(const bool DEBUG)
+SceneHandler::SceneHandler(const bool DEBUG, std::ostream& os)
     :DEBUG                       (DEBUG)
+    ,os                          (os)
     ,logicPaused                 (false)
     ,drawSceneDebugThings        (true)
     ,lowSoundVolume              (10)
@@ -16,9 +17,14 @@ SceneHandler::SceneHandler(const bool DEBUG)
     ,window(sf::VideoMode(0, 0), "")
     ,soundHandler(SoundHandler(maxSoundsSimultaneously))
 {
-    // Ensure that debug-things are not drawn if DEBUG mode is off
-    if(drawSceneDebugThings && !DEBUG)
+    if(DEBUG)
+        importantOs << "DEBUG mode is on!" << std::endl;
+    else
+    {
+        // Ensure that debug-inteded flags are false if DEBUG mode is off
         drawSceneDebugThings = false;
+        logicPaused = false;
+    }
     // "seed" the random numbers (for the parts of the game to get a random value).
     // Note that this is a weak random number generator
     srand(static_cast<unsigned>(time(0)));
@@ -30,6 +36,15 @@ void SceneHandler::run()
     if(!scene) os << "Scene not set!" << std::endl;
     scene->setUp();
     this->setUpdateFPS();
+    if(DEBUG)
+        debugRun();
+    else
+        normalRun();
+    os << "...Exiting" << std::endl;
+}
+
+void SceneHandler::debugRun()
+{
     while(window.isOpen())
     {
         // 1. Handle user events and the handle user debug events
@@ -38,7 +53,7 @@ void SceneHandler::run()
         // 4. Display everything
         // 5. Delete played sounds
         // 6. Update logic if it's not paused
-        scene->userEventHandler->handleAllWindowEvents(window);
+        scene->userEventHandler->handleNormalAndDebugWindowEvents(window);
         window.clear();
         scene->draw(window);
         if(drawSceneDebugThings)
@@ -53,7 +68,19 @@ void SceneHandler::run()
         if(!logicPaused)
             scene->update();
     }
-    os << "...Exiting" << std::endl;
+}
+
+void SceneHandler::normalRun()
+{
+    while(window.isOpen())
+    {
+        scene->userEventHandler->handleWindowEvents(window);
+        window.clear();
+        scene->draw(window);
+        window.display();
+        soundHandler.deletePlayedSounds();
+        scene->update();
+    }
 }
 
 void SceneHandler::setScene(Scene* s)

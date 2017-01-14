@@ -30,7 +30,8 @@ protected:
     sf::Vector2f  mouseWorldPos; // mouse position gets updated every time the handleAllWindowEvents is called
     
 private:
-    void handleAllWindowEvents(sf::RenderWindow& w); // SceneHandler calls this
+    void handleWindowEvents(sf::RenderWindow& w); // SceneHandler calls this if not DEBUG
+    void handleNormalAndDebugWindowEvents(sf::RenderWindow& w); // SceneHandler calls this if DEBUG
     void drawDebugThings(sf::RenderWindow& w); // SceneHandler calls this
     
     // the default Debug-methods can only get called when the SceneHandler's DEBUG-mode is on
@@ -41,7 +42,7 @@ private:
     
     // Helper methods
     void _drawMousePosition(sf::RenderWindow& w);
-    void _drawGameObjectTooltipOnMouseOver(sf::RenderWindow& w);
+    void updateMouseWorldPosition(sf::RenderWindow& w);
     
     SceneHandler& sceneHandler;
     bool          useVirtualDebugMethods;
