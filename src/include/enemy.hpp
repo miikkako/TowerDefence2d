@@ -4,7 +4,7 @@
 #include "towerdefencescene.hpp"
 #include "map.hpp"
 
-class Enemy : public AnimatedGameObject
+class Enemy : public AnimatedGameObject//, public TdActionGameObject
 {
 public:
     
@@ -22,6 +22,8 @@ public:
          ,TextureList* t
          ,short unsigned animation_tick_interval
          ,float rotation_angle_degrees
+//         ,const StaticAnimation* dying_animation
+//         ,const sf::SoundBuffer& dying_sound
          ,float health
          ,float speed);
     
@@ -36,6 +38,7 @@ protected:
     void updateHealthbar();
     
     TowerDefenceScene*          currentScene;
+//    const EnemyStats*           enemyStats;
     float                       health;
     float                       originalHealth;
     float                       speed;

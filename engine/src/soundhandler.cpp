@@ -7,16 +7,16 @@ void SoundHandler::playSound(sf::SoundBuffer& sb, int volume, bool is_important)
     {
         sf::Sound sound;
         sound.setBuffer(sb);
-        sound.play();
         sound.setVolume(volume);
+        sound.play();
         normalSounds.push_back(sound);
     }
     else if(is_important)
     {
         sf::Sound sound;
         sound.setBuffer(sb);
-        sound.play();
         sound.setVolume(volume);
+        sound.play();
         importantSounds.push_back(sound);
     }
 }

@@ -18,7 +18,9 @@ SceneHandler::SceneHandler(const bool DEBUG, std::ostream& os)
     ,soundHandler(SoundHandler(maxSoundsSimultaneously))
 {
     if(DEBUG)
+    {
         importantOs << "DEBUG mode is on!" << std::endl;
+    }
     else
     {
         // Ensure that debug-inteded flags are false if DEBUG mode is off

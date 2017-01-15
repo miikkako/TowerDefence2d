@@ -61,7 +61,7 @@ public:
     /// \param t pointer to a list of textures that loop
     /// \param animation_tick_interval the interval of game ticks of the animation loop
     /// \param rotation_angle_degrees the initial rotation of the object
-    /// \param centerize_origin set the center of the sprite to the center of the texture, otherwise in the top left corner
+    /// \param centerize_origin set the center of the sprite to the center of the texture, otherwise to the top left corner
     ////////////////////////////////////////////////////////////
     AnimatedGameObject(sf::Vector2f pos
                       ,TextureList* t
@@ -85,28 +85,6 @@ public:
     
     friend class StaticAnimation;
     friend class Scene;
-    
-private:
-    ////////////////////////////////////////////////////////////
-    /// \brief Draw and animate the object
-    /// Update the animation tick every time called.
-    /// \param w target to draw the object to
-    /// \return does the object live?
-    ////////////////////////////////////////////////////////////
-    virtual bool draw(sf::RenderWindow& w);
-//    bool otherDrawMethodThatIsNotBoundToGameTicks(sf::RenderWindow& w);?
-    void initializeAnimation();
-    void onDraw(sf::RenderWindow& w);
-    void updateAnimation();
-    sf::Texture& getNextTexture();
-    
-    // Debugging methods, only called if DEBUG mode is on
-    void drawDebugThings(sf::RenderWindow& w) const;
-    void drawBoundingBox(sf::RenderWindow& w) const;
-    void drawOrigin(sf::RenderWindow& w) const;
-    void onMouseOverDebugDraw(sf::RenderWindow& w
-                             ,const sf::Font& f
-                             ,const sf::Vector2f& mouse_world_pos) const;
     
 protected:
     virtual void setUp() {}; // optional
@@ -143,12 +121,35 @@ protected:
     void setOriginToCenter();
     void setAnimation(TextureList* t);
     
+    sf::Sprite                          sprite; // For now, the sprite is freely modifiable
+    
+private:
+    ////////////////////////////////////////////////////////////
+    /// \brief Draw and animate the object
+    /// Update the animation tick every time called.
+    /// \param w target to draw the object to
+    /// \return does the object live?
+    ////////////////////////////////////////////////////////////
+    virtual bool draw(sf::RenderWindow& w);
+//    bool otherDrawMethodThatIsNotBoundToGameTicks(sf::RenderWindow& w);?
+    void initializeAnimation();
+    void onDraw(sf::RenderWindow& w);
+    void updateAnimation();
+    sf::Texture& getNextTexture();
+    
+    // Debugging methods, only called if DEBUG mode is on
+    void drawDebugThings(sf::RenderWindow& w) const;
+    void drawBoundingBox(sf::RenderWindow& w) const;
+    void drawOrigin(sf::RenderWindow& w) const;
+    void onMouseOverDebugDraw(sf::RenderWindow& w
+                             ,const sf::Font& f
+                             ,const sf::Vector2f& mouse_world_pos) const;
+    
     short unsigned                      currentFrameIndex = 0;
     short unsigned                      ticksFromLastFrameUpdate = 0;
     TextureList*                        textures; // Scene handles the memory of the pointers
     short unsigned                      animationTickInterval;
     bool                                centerizeOrigin;
-    sf::Sprite                          sprite;
     
     // The children shapes get drawn when the parent object gets, and moved in the member "move()"-method.
     // The vector owns the pointers, i.e. when the gameobject is destroyed, the shared pointers are destroyed
@@ -201,7 +202,7 @@ template <typename vec_T>
 vec_T AnimatedGameObject::normalize(const vec_T& source)
 {
     float len = length(source);
-    if (len != 0)
+    if(len != 0)
         return vec_T(source.x / len, source.y / len);
     else
         return source;
