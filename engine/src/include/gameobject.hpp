@@ -122,6 +122,9 @@ protected:
     void setAnimation(TextureList* t);
     
     sf::Sprite                          sprite; // For now, the sprite is freely modifiable
+    TextureList*                        textures; // Scene handles the memory of the pointers
+    short unsigned                      animationTickInterval;
+    bool                                centerizeOrigin;
     
 private:
     ////////////////////////////////////////////////////////////
@@ -147,9 +150,6 @@ private:
     
     short unsigned                      currentFrameIndex = 0;
     short unsigned                      ticksFromLastFrameUpdate = 0;
-    TextureList*                        textures; // Scene handles the memory of the pointers
-    short unsigned                      animationTickInterval;
-    bool                                centerizeOrigin;
     
     // The children shapes get drawn when the parent object gets, and moved in the member "move()"-method.
     // The vector owns the pointers, i.e. when the gameobject is destroyed, the shared pointers are destroyed

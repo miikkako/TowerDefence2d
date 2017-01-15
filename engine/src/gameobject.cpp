@@ -162,7 +162,7 @@ void AnimatedGameObject::drawDebugTooltip(sf::RenderWindow& w, const sf::Font& f
 
 void AnimatedGameObject::updateAnimation()
 {
-//    if(!textures)
+//    if(!textures) // Think we don't need to check the validity here
 //        throw std::runtime_error(std::string("Object ") + typeid(*this).name() + "'s 'textures'-member points to null");
     if(animationTickInterval > 0 && ++ticksFromLastFrameUpdate >= animationTickInterval)
     {

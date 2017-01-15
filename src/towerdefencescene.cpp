@@ -45,7 +45,13 @@ void TowerDefenceScene::enemyThrough(Enemy* e)
 void TowerDefenceScene::spawnNewRandomEnemy()
 {
     // @TODO: make this method better
-    enemies.push_back(std::shared_ptr<Enemy>(new MapWaypointEnemy(this,
-            getAnimation("FirstEnemy"), 5, map->getPathIndexForEnemy(), 100.f, 1.f)));
+    enemies.push_back(std::shared_ptr<Enemy>(new MapWaypointEnemy(this->getAnimation("FirstEnemy")
+                                                                 ,5
+                                                                 ,map->getPathIndexForEnemy()
+                                                                 ,this
+                                                                 ,100.f
+                                                                 ,1.f
+                                                                 ,nullptr
+                                                                 ,nullptr)));
 }
 
