@@ -8,7 +8,7 @@
 class SceneHandler
 {
 public:
-    SceneHandler(const bool DEBUG, std::ostream& os);
+    explicit SceneHandler(const bool DEBUG);
     // explicit SceneHandler(Scene* starting_scene);
     SceneHandler(const SceneHandler&) = delete;
     SceneHandler& operator=(const SceneHandler&) = delete;
@@ -34,7 +34,8 @@ private:
     
 public:
     const bool                  DEBUG;
-    std::ostream&               os;
+    std::ostream                nullStream;
+    std::ostream*               os;
     std::ostream&               importantOs = std::cout;
     bool                        logicPaused;
     bool                        drawSceneDebugThings; // @TODO: make things private and usable by friends?

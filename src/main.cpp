@@ -3,9 +3,7 @@
 int main()
 {
     /* @TODO: make this shorter? */
-//    std::ostream os(nullptr);
-//    SceneHandler SH(true, os);
-    SceneHandler SH(true, std::cout);
+    SceneHandler SH(true);
     Scene* scene = new TowerDefenceScene(SH, "FirstMap");
     SH.setScene(scene);
     SH.run();

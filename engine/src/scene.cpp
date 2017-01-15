@@ -125,7 +125,7 @@ bool Scene::getDebugMode() const
 
 std::ostream& Scene::getOs() const
 {
-    return sceneHandler.os;
+    return *(sceneHandler.os);
 }
 
 std::ostream& Scene::getImportantOs() const
@@ -182,7 +182,7 @@ std::string Scene::loadAndSaveAnimation(const std::string& folder_path
     std::string folder_name = extractFilename(folder_path);
     AnimatedGameObject::TextureList anim = this->loadAnimation(folder_path, file_extension);
     animationMap.insert(std::make_pair(folder_name, anim));
-    sceneHandler.os << "The animation was saved to the animation-map as \""
+    getOs() << "The animation was saved to the animation-map as \""
             << folder_name << "\"" << std::endl;
     return folder_name;
 }
@@ -192,7 +192,7 @@ std::string Scene::loadAndSaveSoundbuffer(const std::string& file_path)
     std::string filename = extractFilename(file_path);
     sf::SoundBuffer sb(this->loadSoundbuffer(file_path));
     soundbufferMap.insert(std::make_pair(filename, sb));
-    sceneHandler.os << "The sound buffer was saved to the sound buffer -map as \""
+    getOs() << "The sound buffer was saved to the sound buffer -map as \""
             << filename << "\"" << std::endl;
     return filename;
 }
@@ -202,7 +202,7 @@ std::string Scene::loadAndSaveFont(const std::string& file_path)
     std::string filename = extractFilename(file_path);
     sf::Font font(this->loadFont(file_path));
     fontMap.insert(std::make_pair(filename, font));
-    sceneHandler.os << "The font was saved to the font-map as \""
+    getOs() << "The font was saved to the font-map as \""
             << filename << "\"" << std::endl;
     return filename;
 }
@@ -213,12 +213,12 @@ void Scene::loadAndSaveDefaultFont() noexcept
     std::string filepath(engineAssetsPath + "fonts/" + defaultFontFilename);
     try {
         font = this->loadFont(filepath);
-        sceneHandler.os << "Engine default font was succesfully loaded from \""
+        getOs() << "Engine default font was succesfully loaded from \""
             << filepath << "\" (relative to engine sources). "
             << "It can accessed from Scene::getDefaultFont" << std::endl;
     } catch (const std::invalid_argument& e) {
         font = sf::Font();
-        sceneHandler.os << "Failed to load a default font \"" << filepath
+        getOs() << "Failed to load a default font \"" << filepath
             << "\". Reason: " << e.what() << ". "
             << "Now, the default font is saved as an empty sf::Font. "
             << "That is, some debugging texts and the use of "
@@ -237,7 +237,7 @@ AnimatedGameObject::TextureList* Scene::loadAndSaveAndGetAnimation(const std::st
 AnimatedGameObject::TextureList Scene::loadAnimation(const std::string& folder_path
                                                     ,const std::string file_extension)
 {
-    sceneHandler.os << "Loading animation from \"" << folder_path << "\"" << std::endl;
+    getOs() << "Loading animation from \"" << folder_path << "\"" << std::endl;
     AnimatedGameObject::TextureList ret;
     short unsigned loop_index(0), first_number(0), second_number(0);
     while(true)
@@ -260,7 +260,7 @@ AnimatedGameObject::TextureList Scene::loadAnimation(const std::string& folder_p
         }
         ++loop_index;
     }
-    sceneHandler.os <<  "Succesfully loaded animation from folder \""
+    getOs() <<  "Succesfully loaded animation from folder \""
             << folder_path << "\"" << std::endl;
     return ret;
 }
@@ -270,7 +270,7 @@ sf::Texture Scene::loadTexture(const std::string& file_path)
     sf::Texture t;
     if(!t.loadFromFile(file_path))
         throw std::invalid_argument("Texture \"" + file_path + "\" not found");
-    sceneHandler.os << "Loaded texture \"" + extractFilename(file_path) << "\". ";
+    getOs() << "Loaded texture \"" + extractFilename(file_path) << "\". ";
     return t;
 }
 
@@ -279,7 +279,7 @@ sf::SoundBuffer Scene::loadSoundbuffer(const std::string& file_path)
     sf::SoundBuffer s;
     if(!s.loadFromFile(file_path))
         throw std::invalid_argument("Sound \"" + file_path + "\"not found");
-    sceneHandler.os << "Loaded sound \"" + file_path << "\"" << std::endl;
+    getOs() << "Loaded sound \"" + file_path << "\"" << std::endl;
     return s;
 }
 
@@ -288,7 +288,7 @@ sf::Font Scene::loadFont(const std::string& file_path)
     sf::Font f;
     if(!f.loadFromFile(file_path))
         throw std::invalid_argument("Font \"" + file_path + "\" not found");
-    sceneHandler.os << "Loaded font \"" + file_path << "\"" << std::endl;
+    getOs() << "Loaded font \"" + file_path << "\"" << std::endl;
     return f;
 }
 

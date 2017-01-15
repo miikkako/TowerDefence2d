@@ -1,8 +1,9 @@
 #include "include/scenehandler.hpp"
 
-SceneHandler::SceneHandler(const bool DEBUG, std::ostream& os)
+SceneHandler::SceneHandler(const bool DEBUG)
     :DEBUG                       (DEBUG)
-    ,os                          (os)
+    ,nullStream                  (nullptr)
+    ,os                          (&nullStream)
     ,logicPaused                 (false)
     ,drawSceneDebugThings        (true)
     ,lowSoundVolume              (10)
@@ -19,10 +20,12 @@ SceneHandler::SceneHandler(const bool DEBUG, std::ostream& os)
 {
     if(DEBUG)
     {
+        os = &std::cerr;
         importantOs << "DEBUG mode is on!" << std::endl;
     }
     else
     {
+        os = &nullStream;
         // Ensure that debug-inteded flags are false if DEBUG mode is off
         drawSceneDebugThings = false;
         logicPaused = false;
@@ -34,15 +37,15 @@ SceneHandler::SceneHandler(const bool DEBUG, std::ostream& os)
 
 void SceneHandler::run()
 {
-    os << "Running game..." << std::endl;
-    if(!scene) os << "Scene not set!" << std::endl;
+    *os << "Running game..." << std::endl;
+    if(!scene) *os << "Scene not set!" << std::endl;
     scene->setUp();
     this->setUpdateFPS();
     if(DEBUG)
         debugRun();
     else
         normalRun();
-    os << "...Exiting" << std::endl;
+    *os << "...Exiting" << std::endl;
 }
 
 void SceneHandler::debugRun()
@@ -94,14 +97,14 @@ void SceneHandler::setScene(Scene* s)
 
 void SceneHandler::printSceneDebug()
 {
-    os << *scene << std::endl;
+    *os << *scene << std::endl;
 }
 
 void SceneHandler::setUpdateFPS()
 {
 //    updateInterval = sf::seconds(1.f / updateFPS);
     window.setFramerateLimit(updateFPS);
-    os << "SceneHandler::updateFPS = " << updateFPS << std::endl;
+    *os << "SceneHandler::updateFPS = " << updateFPS << std::endl;
 }
 
 void SceneHandler::increaseUpdateFPS()
