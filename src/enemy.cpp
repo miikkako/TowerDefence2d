@@ -2,7 +2,7 @@
 #include "include/towerdefencescene.hpp"
 
 Enemy::Enemy(sf::Vector2f pos
-            ,TextureList* t
+            ,const TextureList* t
             ,short unsigned animation_tick_interval
             ,float rotation_angle_degrees
             ,TowerDefenceScene* current_scene
@@ -45,7 +45,7 @@ float Enemy::getSpeed() const
 }
 
 
-MapWaypointEnemy::MapWaypointEnemy(TextureList* t
+MapWaypointEnemy::MapWaypointEnemy(const TextureList* t
                                   ,short unsigned animation_tick_interval
                                   ,short unsigned map_path_index
                                   ,TowerDefenceScene* current_scene

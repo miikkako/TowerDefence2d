@@ -3,7 +3,7 @@
 
 AnimatedGameObject::AnimatedGameObject(float x_pos
                                       ,float y_pos
-                                      ,TextureList* t
+                                      ,const TextureList* t
                                       ,short unsigned animation_tick_interval
                                       ,float rotation_angle_degrees
                                       ,bool centerize_origin)
@@ -17,7 +17,7 @@ AnimatedGameObject::AnimatedGameObject(float x_pos
 }
 
 AnimatedGameObject::AnimatedGameObject(sf::Vector2f pos
-                                      ,TextureList* t
+                                      ,const TextureList* t
                                       ,short unsigned animation_tick_interval
                                       ,float rotation_angle_degrees
                                       ,bool centerize_origin)
@@ -172,7 +172,7 @@ void AnimatedGameObject::updateAnimation()
     }
 }
 
-sf::Texture& AnimatedGameObject::getNextTexture()
+const sf::Texture& AnimatedGameObject::getNextTexture()
 {
     if(currentFrameIndex >= textures->size() - 1)
         currentFrameIndex = 0;
@@ -221,7 +221,7 @@ void AnimatedGameObject::setTextOriginToCenter(sf::Text& s)
 /* Explosions, etc. */
 StaticAnimation::StaticAnimation(float x_pos
                                 ,float y_pos
-                                ,TextureList* t
+                                ,const TextureList* t
                                 ,short unsigned animation_loops_lifetime
                                 ,short unsigned animation_tick_interval
                                 ,float rotation_angle_degrees
@@ -236,7 +236,7 @@ StaticAnimation::StaticAnimation(float x_pos
 { }
 
 StaticAnimation::StaticAnimation(const sf::Vector2f pos
-                                ,TextureList* t
+                                ,const TextureList* t
                                 ,short unsigned animation_loops_lifetime
                                 ,short unsigned animation_tick_interval
                                 ,float rotation_angle_degrees

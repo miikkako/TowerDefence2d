@@ -50,7 +50,7 @@ public:
     ////////////////////////////////////////////////////////////
     AnimatedGameObject(float x_pos
                       ,float y_pos
-                      ,TextureList* t
+                      ,const TextureList* t
                       ,short unsigned animation_tick_interval
                       ,float rotation_angle_degrees = 0
                       ,bool centerize_origin = true);
@@ -64,7 +64,7 @@ public:
     /// \param centerize_origin set the center of the sprite to the center of the texture, otherwise to the top left corner
     ////////////////////////////////////////////////////////////
     AnimatedGameObject(sf::Vector2f pos
-                      ,TextureList* t
+                      ,const TextureList* t
                       ,short unsigned animation_tick_interval
                       ,float rotation_angle_degrees = 0
                       ,bool centerize_origin = true);
@@ -122,7 +122,7 @@ protected:
     void setAnimation(TextureList* t);
     
     sf::Sprite                          sprite; // For now, the sprite is freely modifiable
-    TextureList*                        textures; // Scene handles the memory of the pointers
+    const TextureList*                  textures; // Scene handles the memory of the pointers
     short unsigned                      animationTickInterval;
     bool                                centerizeOrigin;
     
@@ -138,7 +138,7 @@ private:
     void initializeAnimation();
     void onDraw(sf::RenderWindow& w);
     void updateAnimation();
-    sf::Texture& getNextTexture();
+    const sf::Texture& getNextTexture();
     
     // Debugging methods, only called if DEBUG mode is on
     void drawDebugThings(sf::RenderWindow& w) const;
@@ -163,13 +163,13 @@ class StaticAnimation : public AnimatedGameObject
 public:
     StaticAnimation(float x_pos
                    ,float y_pos
-                   ,TextureList* t
+                   ,const TextureList* t
                    ,short unsigned animation_loops_lifetime
                    ,short unsigned animation_tick_interval
                    ,float rotation_angle_degrees = 0
                    ,bool centerize_origin = true);
     StaticAnimation(sf::Vector2f pos
-                   ,TextureList* t
+                   ,const TextureList* t
                    ,short unsigned animation_loops_lifetime
                    ,short unsigned animation_tick_interval
                    ,float rotation_angle_degrees = 0

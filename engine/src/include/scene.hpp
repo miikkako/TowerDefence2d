@@ -29,13 +29,13 @@ public:
 //    void                setWindowSize(sf::Vector2u s) { windowSize = s; };
     const std::string&  getTitle()        const       { return title; };
     
-    // @TODO: an empty animation getter. i.e. returns empty sf::Textures (So that the animation can be an empty texture)
+    // @TODO: an empty animation getter. i.e. returns empty sf::Textures (So that the animation can be initialized as an empty texture)
     const sf::Font& getDefaultFont() const noexcept;
     const sf::Font& getFont(const std::string& font_name) const;
     const sf::SoundBuffer& getSoundbuffer(const std::string& soundbuffer_name) const;
-    AnimatedGameObject::TextureList* getAnimation(const std::string& animation_name);
-    AnimatedGameObject::TextureList* loadAndSaveAndGetAnimation(const std::string& folder_path
-                                                               ,const std::string file_extension);
+    const AnimatedGameObject::TextureList* getAnimation(const std::string& animation_name) const;
+    const AnimatedGameObject::TextureList* loadAndSaveAndGetAnimation(const std::string& folder_path
+                                                                     ,const std::string& file_extension);
     
     virtual void print(std::ostream& os) const { (void) os; }; // optional
     friend std::ostream& operator<< (std::ostream& os, const Scene& s);
@@ -53,7 +53,7 @@ protected:
     /// \return the name that the animation was saved as to the animation-map (The folder name extracted from the path)
     ////////////////////////////////////////////////////////////
     std::string loadAndSaveAnimation(const std::string& folder_path
-                                    ,const std::string file_extension);
+                                    ,const std::string& file_extension);
     
     std::string loadAndSaveSoundbuffer(const std::string& file_path); // save the sound buffer using the file's name
     
@@ -74,7 +74,7 @@ private:
     
     sf::Texture loadTexture(const std::string& filename);
     AnimatedGameObject::TextureList loadAnimation(const std::string& folder_path
-                                                 ,const std::string file_extension);
+                                                 ,const std::string& file_extension);
     sf::SoundBuffer loadSoundbuffer(const std::string& file_path);
     sf::Font loadFont(const std::string& file_path);
     void loadAndSaveDefaultFont() noexcept;

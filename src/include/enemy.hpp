@@ -18,7 +18,7 @@ public:
     /// \param speed the speed of the enemy
     ////////////////////////////////////////////////////////////
     Enemy(sf::Vector2f pos
-         ,TextureList* t
+         ,const TextureList* t
          ,short unsigned animation_tick_interval
          ,float rotation_angle_degrees
          ,TowerDefenceScene* current_scene
@@ -50,7 +50,7 @@ protected:
 class MapWaypointEnemy : public Enemy
 {
 public:
-    MapWaypointEnemy(TextureList* t
+    MapWaypointEnemy(const TextureList* t
                     ,short unsigned animation_tick_interval
                     ,short unsigned map_path_index
                     ,TowerDefenceScene* current_scene

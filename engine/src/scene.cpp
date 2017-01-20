@@ -143,7 +143,7 @@ void Scene::addDrawableListToBeDrawn(DrawableList* list)
     allOtherDrawables.push_back(list);
 }
 
-AnimatedGameObject::TextureList* Scene::getAnimation(const std::string& animation_name)
+const AnimatedGameObject::TextureList* Scene::getAnimation(const std::string& animation_name) const
 {
     try {
         return &animationMap.at(animation_name);
@@ -176,7 +176,7 @@ const sf::Font& Scene::getFont(const std::string& font_name) const
 }
 
 std::string Scene::loadAndSaveAnimation(const std::string& folder_path
-                                       ,const std::string file_extension)
+                                       ,const std::string& file_extension)
 {
     // Extract the folder name from the path first
     std::string folder_name = extractFilename(folder_path);
@@ -227,15 +227,15 @@ void Scene::loadAndSaveDefaultFont() noexcept
     fontMap.insert(std::make_pair(defaultFontFilename, font));
 }
 
-AnimatedGameObject::TextureList* Scene::loadAndSaveAndGetAnimation(const std::string& folder_path
-                                                                        ,const std::string file_extension)
+const AnimatedGameObject::TextureList* Scene::loadAndSaveAndGetAnimation(const std::string& folder_path
+                                                                        ,const std::string& file_extension)
 {
     std::string folder_name = this->loadAndSaveAnimation(folder_path, file_extension);
     return this->getAnimation(folder_name);
 }
 
 AnimatedGameObject::TextureList Scene::loadAnimation(const std::string& folder_path
-                                                    ,const std::string file_extension)
+                                                    ,const std::string& file_extension)
 {
     getOs() << "Loading animation from \"" << folder_path << "\"" << std::endl;
     AnimatedGameObject::TextureList ret;
