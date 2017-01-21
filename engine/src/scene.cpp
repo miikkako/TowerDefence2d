@@ -64,9 +64,11 @@ void Scene::draw(sf::RenderWindow& w)
                 iter = (*list_iter)->erase(iter);
                 --iter;
             }
-            (*iter)->onMouseOverDraw(w
-                                    ,getDefaultFont()
-                                    ,userEventHandler->getMouseWorldPos());
+            if((*iter)->insideBoundingBox(userEventHandler->getMouseWorldPos()))
+            {
+                (*iter)->onMouseOverDraw(w ,getDefaultFont());
+                (*iter)->onMouseOverAction();
+            }
         }
     }
     for(auto list_iter = allOtherDrawables.begin(); list_iter != allOtherDrawables.end();
@@ -75,6 +77,30 @@ void Scene::draw(sf::RenderWindow& w)
         for(auto iter = (*list_iter)->begin(); iter != (*list_iter)->end(); ++iter)
         {
             w.draw(**iter);
+        }
+    }
+}
+
+void Scene::executeMouseButtonPressedActions()
+{
+    for(auto list_iter = allGameObjects.begin(); list_iter != allGameObjects.end();
+        ++list_iter)
+    {
+        for(auto iter = (*list_iter)->begin(); iter != (*list_iter)->end(); ++iter)
+        {
+            (*iter)->onMouseButtonPressedAction();
+        }
+    }
+}
+
+void Scene::executeMouseButtonReleasedActions()
+{
+    for(auto list_iter = allGameObjects.begin(); list_iter != allGameObjects.end();
+        ++list_iter)
+    {
+        for(auto iter = (*list_iter)->begin(); iter != (*list_iter)->end(); ++iter)
+        {
+            (*iter)->onMouseButtonReleasedAction();
         }
     }
 }
@@ -88,9 +114,10 @@ void Scene::drawDebugThings(sf::RenderWindow& w) const
         {
             (*iter)->drawDebugThings(w);
             (*iter)->drawOtherDebugThings(w);
-            (*iter)->onMouseOverDebugDraw(w
-                                         ,getDefaultFont()
-                                         ,userEventHandler->getMouseWorldPos());
+            if((*iter)->insideBoundingBox(userEventHandler->getMouseWorldPos()))
+            {
+                (*iter)->onMouseOverDebugDraw(w,getDefaultFont());
+            }
         }
     }
     _drawDefaultSceneDebugThings(w);

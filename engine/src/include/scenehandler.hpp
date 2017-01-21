@@ -18,6 +18,8 @@ public:
     friend class UserEventHandler;
     friend class Scene;
     
+    void setFastForwardFPS(bool mode);
+    
 private:
     // These private methods are only meant to be called only by the UserEventHandler base class
     void pauseLogic() { if(DEBUG) logicPaused = !logicPaused; }; // friend method
@@ -39,6 +41,8 @@ public:
     std::ostream&               importantOs = std::cout;
     bool                        logicPaused;
     bool                        drawSceneDebugThings; // @TODO: make things private and usable by friends?
+    const short unsigned        fastForwardFPS;
+    const short unsigned        normalFPS;
     const sf::Color             boundingBoxColor;
     const sf::Color             gameobjectOriginColor;
     const int                   lowSoundVolume;

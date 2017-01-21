@@ -114,15 +114,15 @@ int MapWaypointEnemy::getPointsFromKill() const
     return ret;
 }
 
-Enemy* MapWaypointEnemy::createCopy()
+std::shared_ptr<Enemy> MapWaypointEnemy::createCopy()
 {
-    return new MapWaypointEnemy(textures
+    return std::shared_ptr<Enemy>(new MapWaypointEnemy(this->getAnimation()
                                ,animationTickInterval
                                ,currentScene->getMap()->getPathIndexForEnemy()
                                ,currentScene
                                ,originalHealth
                                ,speed
                                ,actionAnimation
-                               ,actionSound);   
+                               ,actionSound));   
 }
 

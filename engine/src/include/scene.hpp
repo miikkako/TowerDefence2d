@@ -29,6 +29,8 @@ public:
 //    void                setWindowSize(sf::Vector2u s) { windowSize = s; };
     const std::string&  getTitle()        const       { return title; };
     
+    const sf::Vector2f& getMouseWorldPos() const { return userEventHandler->getMouseWorldPos(); };
+    
     // @TODO: an empty animation getter. i.e. returns empty sf::Textures (So that the animation can be initialized as an empty texture)
     const sf::Font& getDefaultFont() const noexcept;
     const sf::Font& getFont(const std::string& font_name) const;
@@ -40,6 +42,7 @@ public:
     virtual void print(std::ostream& os) const { (void) os; }; // optional
     friend std::ostream& operator<< (std::ostream& os, const Scene& s);
     friend class SceneHandler;
+    friend class UserEventHandler;
     
 protected:
     virtual void updateSceneBehaviour() { }; // optional for the derived class
@@ -70,6 +73,9 @@ private:
     void update();
     void draw(sf::RenderWindow& w);
     void drawDebugThings(sf::RenderWindow& w) const;
+    void executeMouseButtonPressedActions();
+    void executeMouseButtonReleasedActions();
+    
     void _drawDefaultSceneDebugThings(sf::RenderWindow& w) const;
     
     sf::Texture loadTexture(const std::string& filename);

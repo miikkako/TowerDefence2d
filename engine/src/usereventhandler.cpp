@@ -9,7 +9,7 @@ UserEventHandler::UserEventHandler(SceneHandler& sh, bool use_virtual_debug_meth
 
 void UserEventHandler::handleWindowEvents(sf::RenderWindow& w)
 {
-    updateMouseWorldPosition(w);
+    _updateMouseWorldPosition(w);
     while(w.pollEvent(event)) {
         if(event.type == sf::Event::Closed) {
             w.close();
@@ -18,7 +18,11 @@ void UserEventHandler::handleWindowEvents(sf::RenderWindow& w)
         } else if(event.type == sf::Event::MouseMoved) {
             this->handleMouseMoved();
         } else if(event.type == sf::Event::MouseButtonPressed) {
+            sceneHandler.scene->executeMouseButtonPressedActions();
             this->handleMouseButtonPressed();
+        } else if(event.type == sf::Event::MouseButtonReleased) {
+            sceneHandler.scene->executeMouseButtonReleasedActions();
+            this->handleMouseButtonReleased();
         } else if(event.type == sf::Event::KeyPressed) {
             this->handleKeyPressed();
         }
@@ -27,7 +31,7 @@ void UserEventHandler::handleWindowEvents(sf::RenderWindow& w)
 
 void UserEventHandler::handleNormalAndDebugWindowEvents(sf::RenderWindow& w)
 {
-    updateMouseWorldPosition(w);
+    _updateMouseWorldPosition(w);
     while(w.pollEvent(event)) {
         if(event.type == sf::Event::Closed) {
             w.close();
@@ -39,10 +43,17 @@ void UserEventHandler::handleNormalAndDebugWindowEvents(sf::RenderWindow& w)
             if(useVirtualDebugMethods)
                 this->handleMouseMovedDebug();
         } else if(event.type == sf::Event::MouseButtonPressed) {
+            sceneHandler.scene->executeMouseButtonPressedActions();
             this->handleMouseButtonPressed();
             _defaultHandleMouseButtonPressedDebug();
             if(useVirtualDebugMethods)
                 this->handleMouseButtonPressedDebug();
+        } else if(event.type == sf::Event::MouseButtonReleased) {
+            sceneHandler.scene->executeMouseButtonReleasedActions();
+            this->handleMouseButtonReleased();
+            _defaultHandleMouseButtonReleasedDebug();
+            if(useVirtualDebugMethods)
+                this->handleMouseButtonReleasedDebug();
         } else if(event.type == sf::Event::KeyPressed) {
             this->handleKeyPressed();
             _defaultHandleKeyPressedDebug();
@@ -64,6 +75,11 @@ void UserEventHandler::_defaultHandleMouseMovedDebug()
 }
 
 void UserEventHandler::_defaultHandleMouseButtonPressedDebug()
+{
+    
+}
+
+void UserEventHandler::_defaultHandleMouseButtonReleasedDebug()
 {
     
 }
@@ -102,7 +118,7 @@ void UserEventHandler::_drawMousePosition(sf::RenderWindow& w)
     w.draw(t);
 }
 
-void UserEventHandler::updateMouseWorldPosition(sf::RenderWindow& w)
+void UserEventHandler::_updateMouseWorldPosition(sf::RenderWindow& w)
 {
     // Get the current mouse position in the window
     sf::Vector2i pixel_pos(sf::Mouse::getPosition(w));

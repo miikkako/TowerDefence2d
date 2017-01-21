@@ -1,4 +1,5 @@
 #include "include/gameobject.hpp"
+#include "include/scene.hpp"
 #include <typeinfo>
 
 AnimatedGameObject::AnimatedGameObject(float x_pos
@@ -105,12 +106,10 @@ void AnimatedGameObject::drawOrigin(sf::RenderWindow& w) const
     w.draw(circle);
 }
 
-void AnimatedGameObject::onMouseOverDebugDraw(sf::RenderWindow& w
-                                             ,const sf::Font& f
-                                             ,const sf::Vector2f& mouse_world_pos) const
+void AnimatedGameObject::onMouseOverDebugDraw(sf::RenderWindow& w ,const sf::Font& f)
 {
-    if(insideBoundingBox(mouse_world_pos))
-        drawDebugTooltip(w, f);
+    drawDebugTooltip(w, f);
+    this->drawDebugTooltip(w, f);
 }
 
 void AnimatedGameObject::drawDebugTooltip(sf::RenderWindow& w, const sf::Font& f) const
@@ -199,7 +198,7 @@ void AnimatedGameObject::setOriginToCenter()
     sprite.setOrigin(rect.left + rect.width/2.0f, rect.top + rect.height/2.0f);
 }
 
-void AnimatedGameObject::setAnimation(TextureList* t)
+void AnimatedGameObject::setAnimation(const TextureList* t)
 {
     textures = t;
     initializeAnimation();
@@ -258,6 +257,7 @@ bool StaticAnimation::draw(sf::RenderWindow& w)
     onDraw(w);
     return true;
 }
+
 
 std::ostream& operator<<(std::ostream& os, const AnimatedGameObject& obj)
 {

@@ -29,7 +29,7 @@ public:
     
 //    bool update() override = 0;
     virtual int getPointsFromKill() const = 0;
-    virtual Enemy* createCopy() = 0;
+    virtual std::shared_ptr<Enemy> createCopy() = 0;
     
     /* @TODO: make a derived Enemy-class that doesn't just move through the waypoints,
      * but using the waypoints as a road, "drives" through the road like a rally car :) */
@@ -60,7 +60,7 @@ public:
                     ,sf::SoundBuffer* dying_sound);
     
     int getPointsFromKill() const override;
-    Enemy* createCopy() override;
+    std::shared_ptr<Enemy> createCopy() override;
     
 protected:
     bool update() override;

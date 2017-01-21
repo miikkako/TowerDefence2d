@@ -10,24 +10,27 @@ class UserEventHandler
 public:
     UserEventHandler(SceneHandler& sh, bool use_virtual_debug_methods);
     
-    const sf::Vector2f& getMouseWorldPos() const { return mouseWorldPos; };
-    
     friend class SceneHandler;
     friend class Scene;
     
 protected:
-    virtual void handleMouseMoved() {  };
-    virtual void handleMouseButtonPressed() {  };
-    virtual void handleKeyPressed() {  };
+    const sf::Vector2f& getMouseWorldPos() const { return mouseWorldPos; };
+    
+    virtual void handleMouseMoved() { };
+    virtual void handleMouseButtonPressed() { };
+    virtual void handleMouseButtonReleased() { };
+    virtual void handleKeyPressed() { };
     
     // These debug-methods get called if the member useVirtualDebugMethods is true
-    virtual void handleMouseMovedDebug() {  };
-    virtual void handleMouseButtonPressedDebug() {  };
-    virtual void handleKeyPressedDebug() {  };
+    virtual void handleMouseMovedDebug() { };
+    virtual void handleMouseButtonPressedDebug() { };
+    virtual void handleMouseButtonReleasedDebug() { };
+    virtual void handleKeyPressedDebug() { };
     virtual void onDrawDebugThings(sf::RenderWindow& w) { (void) w; };
     
     sf::Event     event; // this event gets polled every time the handleAllWindowEvents is called
     sf::Vector2f  mouseWorldPos; // mouse position gets updated every time the handleAllWindowEvents is called
+    bool          mouseButtonPressed;
     
 private:
     void handleWindowEvents(sf::RenderWindow& w); // SceneHandler calls this if not DEBUG
@@ -37,12 +40,13 @@ private:
     // the default Debug-methods can only get called when the SceneHandler's DEBUG-mode is on
     void _defaultHandleMouseMovedDebug();
     void _defaultHandleMouseButtonPressedDebug();
+    void _defaultHandleMouseButtonReleasedDebug();
     void _defaultHandleKeyPressedDebug();
     void _defaultOnDrawDebugThings(sf::RenderWindow& w);
     
     // Helper methods
     void _drawMousePosition(sf::RenderWindow& w);
-    void updateMouseWorldPosition(sf::RenderWindow& w);
+    void _updateMouseWorldPosition(sf::RenderWindow& w);
     
     SceneHandler& sceneHandler;
     bool          useVirtualDebugMethods;

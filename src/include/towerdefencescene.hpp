@@ -35,6 +35,9 @@ public:
     int            score = 0;
     unsigned       enemiesThrough = 0;
     
+protected:
+    void updateSceneBehaviour() override;
+    
 private:
     std::shared_ptr<Map>    map;
     GameObjectList          maps;
@@ -42,6 +45,7 @@ private:
     GameObjectList          towers;
     GameObjectList          projectiles;
     GameObjectList          staticAnimations;
+    GameObjectList          buttons;
     DrawableList            enemyHealthbars;
 };
 

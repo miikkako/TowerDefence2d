@@ -1,18 +1,20 @@
 #include "include/scenehandler.hpp"
 
 SceneHandler::SceneHandler(const bool DEBUG)
-    :DEBUG                       (DEBUG)
-    ,nullStream                  (nullptr)
-    ,os                          (&nullStream)
-    ,logicPaused                 (false)
-    ,drawSceneDebugThings        (true)
-    ,lowSoundVolume              (10)
-    ,mediumSoundVolume           (30)
-    ,highSoundVolume             (60)
-    ,maxSoundVolume              (90)
-    ,maxSoundsSimultaneously     (100)
-    ,updateFPS                   (100)
-    ,FPSchangeStep               (1)
+        :DEBUG                       (DEBUG)
+        ,nullStream                  (nullptr)
+        ,os                          (&nullStream)
+        ,logicPaused                 (false)
+        ,drawSceneDebugThings        (true)
+        ,fastForwardFPS              (250)
+        ,normalFPS                   (100)
+        ,lowSoundVolume              (10)
+        ,mediumSoundVolume           (30)
+        ,highSoundVolume             (60)
+        ,maxSoundVolume              (90)
+        ,maxSoundsSimultaneously     (100)
+        ,updateFPS                   (normalFPS)
+        ,FPSchangeStep               (1)
     // Members below are not intended to be modified
 //    ,updateInterval(sf::seconds(1.f / updateFPS))
     ,window(sf::VideoMode(0, 0), "")
@@ -86,6 +88,12 @@ void SceneHandler::normalRun()
         soundHandler.deletePlayedSounds();
         scene->update();
     }
+}
+
+void SceneHandler::setFastForwardFPS(bool mode)
+{
+    updateFPS = mode ? fastForwardFPS : normalFPS;
+    setUpdateFPS();
 }
 
 void SceneHandler::setScene(Scene* s)

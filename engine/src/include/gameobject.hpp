@@ -97,13 +97,15 @@ protected:
     /// This method is called from the UserEventHandler
     /// \param w the window to draw the tooltip on
     ////////////////////////////////////////////////////////////
-    virtual void drawDebugTooltip(sf::RenderWindow& w
-                                 ,const sf::Font& f) const;
+    virtual void drawDebugTooltip(sf::RenderWindow& w, const sf::Font& f) const; // optional to override
+    // @TODO: make one method for drawing debug tooltip, and then ask additional information as strings in virtual methods
     
-    virtual void onMouseOverDraw(sf::RenderWindow& w
-                                 ,const sf::Font& f
-                                 ,const sf::Vector2f& mouse_world_pos)
-    { (void) w; (void) f; (void) mouse_world_pos; };
+    virtual void onMouseOverDraw(sf::RenderWindow& w, const sf::Font& f)
+    { (void) w; (void) f; }; // optional
+    
+    virtual void onMouseOverAction() { }; // optional
+    virtual void onMouseButtonPressedAction() { }; // optional
+    virtual void onMouseButtonReleasedAction() { }; // optional
     
     ////////////////////////////////////////////////////////////
     /// \brief Move the object and its children shapes
@@ -119,10 +121,10 @@ protected:
     void setRotation(const sf::Vector2f& direction);
     
     void setOriginToCenter();
-    void setAnimation(TextureList* t);
+    void setAnimation(const TextureList* t);
+    const TextureList* getAnimation() const { return textures; };
     
     sf::Sprite                          sprite; // For now, the sprite is freely modifiable
-    const TextureList*                  textures; // Scene handles the memory of the pointers
     short unsigned                      animationTickInterval;
     bool                                centerizeOrigin;
     
@@ -144,10 +146,9 @@ private:
     void drawDebugThings(sf::RenderWindow& w) const;
     void drawBoundingBox(sf::RenderWindow& w) const;
     void drawOrigin(sf::RenderWindow& w) const;
-    void onMouseOverDebugDraw(sf::RenderWindow& w
-                             ,const sf::Font& f
-                             ,const sf::Vector2f& mouse_world_pos) const;
+    void onMouseOverDebugDraw(sf::RenderWindow& w, const sf::Font& f);
     
+    const TextureList*                  textures; // Scene handles the memory of the pointers
     short unsigned                      currentFrameIndex = 0;
     short unsigned                      ticksFromLastFrameUpdate = 0;
     
@@ -157,6 +158,7 @@ private:
     std::vector<std::shared_ptr<sf::Shape>> childrenShapes;
 };
 
+// @TODO: move derived utility classes to a separate file
 /* StaticAnimation can be used as e.g. explosion, gun flame, etc. */
 class StaticAnimation : public AnimatedGameObject
 {
@@ -186,6 +188,8 @@ private:
     short unsigned currentLoop = 0;
 };
 
+
+// @TODO: move utility vector methods and other helper methods to: a) another file, b) another class, c) to free functions
 template <typename vec_T>
 float AnimatedGameObject::length(const vec_T& source)
 {
