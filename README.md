@@ -13,6 +13,9 @@ Into a separate folder:
 2. `cmake ..`  
 3. `make && ./td`  
 
+## Game instructions
+The game is on development phase, so for now keyboard commands can be read
+from engine/src/usereventhandler.cpp AND src/tdusereventhandler.cpp.  
 
 ### About coding style
 * using "this->" in methods that are not defined inside the class itself, but inside the classes that The class inherits

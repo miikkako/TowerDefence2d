@@ -3,7 +3,6 @@
 SceneHandler::SceneHandler(const bool DEBUG)
         :DEBUG                       (DEBUG)
         ,nullStream                  (nullptr)
-        ,os                          (&nullStream)
         ,logicPaused                 (false)
         ,drawSceneDebugThings        (true)
         ,fastForwardFPS              (250)

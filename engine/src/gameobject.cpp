@@ -8,9 +8,9 @@ AnimatedGameObject::AnimatedGameObject(float x_pos
                                       ,short unsigned animation_tick_interval
                                       ,float rotation_angle_degrees
                                       ,bool centerize_origin)
-        :textures(t)
-        ,animationTickInterval(animation_tick_interval)
+        :animationTickInterval(animation_tick_interval)
         ,centerizeOrigin(centerize_origin)
+        ,textures(t)
 {
     sprite.setPosition(x_pos, y_pos);
     this->initializeAnimation();
@@ -22,9 +22,9 @@ AnimatedGameObject::AnimatedGameObject(sf::Vector2f pos
                                       ,short unsigned animation_tick_interval
                                       ,float rotation_angle_degrees
                                       ,bool centerize_origin)
-        :textures(t)
-        ,animationTickInterval(animation_tick_interval)
+        :animationTickInterval(animation_tick_interval)
         ,centerizeOrigin(centerize_origin)
+        ,textures(t)
 {
     sprite.setPosition(pos);
     this->initializeAnimation();
