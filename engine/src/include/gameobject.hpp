@@ -2,6 +2,7 @@
 #define GAMEOBJECT_HPP
 
 #include <SFML/Graphics.hpp>
+#include <memory>
 #include <vector>
 #include <math.h>
 

@@ -128,7 +128,7 @@ void AnimatedGameObject::drawDebugTooltip(sf::RenderWindow& w, const sf::Font& f
     sf::Text text;
     text.setFont(f);
     text.setCharacterSize(font_size);
-    text.setFillColor(sf::Color::Black);
+    text.setColor(sf::Color::Black);
     text.setStyle(sf::Text::Regular);
     // Finally draw different texts
     text.setString(typeid(*this).name());

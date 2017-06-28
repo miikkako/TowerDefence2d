@@ -111,7 +111,7 @@ void UserEventHandler::_drawMousePosition(sf::RenderWindow& w)
     t.setString(std::to_string(world_pos.x) + "," + std::to_string(world_pos.y));
     t.setCharacterSize(17);
     t.setStyle(sf::Text::Regular);
-    t.setFillColor(sf::Color::Black);
+    t.setColor(sf::Color::Black);
     t.setFont(sceneHandler.scene->getDefaultFont());
     AnimatedGameObject::setTextOriginToCenter(t);
     t.setPosition(world_pos.x, world_pos.y - 10);

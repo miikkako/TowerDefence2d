@@ -16,7 +16,7 @@ SceneHandler::SceneHandler(const bool DEBUG)
         ,FPSchangeStep               (1)
     // Members below are not intended to be modified
 //    ,updateInterval(sf::seconds(1.f / updateFPS))
-    ,window(sf::VideoMode(0, 0), "")
+    ,window(sf::VideoMode(1, 1, sf::VideoMode::getDesktopMode().bitsPerPixel), "")
     ,soundHandler(SoundHandler(maxSoundsSimultaneously))
 {
     if(DEBUG)
@@ -98,7 +98,7 @@ void SceneHandler::setFastForwardFPS(bool mode)
 void SceneHandler::setScene(Scene* s)
 {
     scene.reset(s);
-    window.create(sf::VideoMode(scene->getWindowSize().x, scene->getWindowSize().y),
+    window.create(sf::VideoMode(scene->getWindowSize().x, scene->getWindowSize().y, sf::VideoMode::getDesktopMode().bitsPerPixel),
                   scene->getTitle()); // recreate the window
 }
 

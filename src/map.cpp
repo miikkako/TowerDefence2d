@@ -55,7 +55,7 @@ void Map::drawWaypoints(sf::RenderWindow& w) const
     sf::Text text;
     text.setFont(currentScene->getDefaultFont());
     text.setCharacterSize(10);
-    text.setFillColor(sf::Color::Black);
+    text.setColor(sf::Color::Black);
     text.setStyle(sf::Text::Regular);
     this->setTextOriginToCenter(text);
     std::array<sf::Color, 4> waypoint_colors
