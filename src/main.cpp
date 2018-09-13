@@ -2,8 +2,7 @@
 
 int main()
 {
-    /* @TODO: make this shorter? */
-    SceneHandler SH(true);
+    SceneHandler SH;
     Scene* scene = new TowerDefenceScene(SH, "FirstMap");
     SH.setScene(scene);
     SH.run();

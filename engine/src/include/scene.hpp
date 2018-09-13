@@ -22,7 +22,6 @@ public:
          ,const std::string& engine_directory_path);
     virtual ~Scene();
     
-    bool getDebugMode() const;
     std::ostream& getOs() const;
     std::ostream& getImportantOs() const;
     const sf::Vector2u& getWindowSize()   const       { return windowSize; };

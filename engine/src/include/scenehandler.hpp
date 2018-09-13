@@ -8,7 +8,7 @@
 class SceneHandler
 {
 public:
-    explicit SceneHandler(const bool DEBUG);
+    explicit SceneHandler();
     // explicit SceneHandler(Scene* starting_scene);
     SceneHandler(const SceneHandler&) = delete;
     SceneHandler& operator=(const SceneHandler&) = delete;
@@ -22,7 +22,7 @@ public:
     
 private:
     // These private methods are only meant to be called only by the UserEventHandler base class
-    void pauseLogic() { if(DEBUG) logicPaused = !logicPaused; }; // friend method
+    void pauseLogic(); // friend method
     void toggleSceneDebugDraw() { drawSceneDebugThings = !drawSceneDebugThings; };
     void printSceneDebug();
     void setUpdateFPS();
@@ -35,7 +35,6 @@ private:
     void _drawSceneHandlerDebugThings();
     
 public:
-    const bool                  DEBUG;
     std::ostream                nullStream;
     std::ostream*               os;
     std::ostream&               importantOs = std::cout;

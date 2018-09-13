@@ -29,8 +29,8 @@ public:
     
 protected:
     void drawOtherDebugThings(sf::RenderWindow& w) override;
-    void drawDebugTooltip(sf::RenderWindow& w, const sf::Font& f) const override
-    { (void) w; (void) f; }; // disable map's tooltip for now
+    void drawDebugTooltip(sf::RenderWindow& w, const sf::Font& f, const sf::Vector2u& window_size) const override
+    { (void) w; (void) f; (void) window_size; }; // disable map's tooltip for now
     
 private:
     void drawWaypoints(sf::RenderWindow& w) const;

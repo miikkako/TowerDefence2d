@@ -6,7 +6,7 @@ Scene::Scene(SceneHandler& sh
             ,const std::string& window_title
             ,const std::string& engine_directory_path)
     :sceneHandler         (sh)
-    ,userEventHandler     (u)
+    ,userEventHandler     (std::move(u))
     ,windowSize           (window_size)
     ,title                (window_title)
     ,engineDirectoryPath  (engine_directory_path)
@@ -116,7 +116,7 @@ void Scene::drawDebugThings(sf::RenderWindow& w) const
             (*iter)->drawOtherDebugThings(w);
             if((*iter)->insideBoundingBox(userEventHandler->getMouseWorldPos()))
             {
-                (*iter)->onMouseOverDebugDraw(w,getDefaultFont());
+                (*iter)->onMouseOverDebugDraw(w, getDefaultFont(), getWindowSize());
             }
         }
     }
@@ -143,11 +143,6 @@ std::ostream& operator<< (std::ostream& os, const Scene& s)
     }
     s.print(os);
     return os;
-}
-
-bool Scene::getDebugMode() const
-{
-    return sceneHandler.DEBUG;
 }
 
 std::ostream& Scene::getOs() const

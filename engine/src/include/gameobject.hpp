@@ -2,19 +2,20 @@
 #define GAMEOBJECT_HPP
 
 #include <SFML/Graphics.hpp>
+#include <memory>
 #include <vector>
-#include <math.h>
+#include <cmath>
 
-#define PI 3.14159f // use this rather than M_PI 
+#define PI 3.14159f // use this rather than M_PI
 
 class Scene;
 
-/* This class shall be the base class of all GameObjects */
-class AnimatedGameObject
+// This class shall be the base class of all GameObjects
+class AnimatedGameObject // /* What about these?: */ : public Animated //, public GameObject
 {
 public:
     typedef std::vector<sf::Texture> TextureList;
-    
+
     ////////////////////////////////////////////////////////////
     /// \param source two component vector with member "x" and "y"
     /// \return the length of the parameter source
@@ -69,6 +70,8 @@ public:
                       ,float rotation_angle_degrees = 0
                       ,bool centerize_origin = true);
     
+    sf::Vector2f getCenterPosition() const;
+    float getRotation() const { return sprite.getRotation(); };
     bool insideBoundingBox(const sf::Vector2f& coord) const;
     
     ////////////////////////////////////////////////////////////
@@ -79,6 +82,8 @@ public:
     ////////////////////////////////////////////////////////////
     void addChildDrawable(std::shared_ptr<sf::Shape> obj); // @TODO: addChildAnimatedGameObject()
     void removeChildDrawable(sf::Shape* obj_ptr);
+    void addChildText(std::shared_ptr<sf::Text> obj);
+    void removeChildText(sf::Text* obj_ptr);
     
     virtual void print(std::ostream& os) const { (void) os; }; // optional
     friend std::ostream& operator<<(std::ostream& os, const AnimatedGameObject& a);
@@ -97,7 +102,9 @@ protected:
     /// This method is called from the UserEventHandler
     /// \param w the window to draw the tooltip on
     ////////////////////////////////////////////////////////////
-    virtual void drawDebugTooltip(sf::RenderWindow& w, const sf::Font& f) const; // optional to override
+    virtual void drawDebugTooltip(sf::RenderWindow& w
+                                 ,const sf::Font& f
+                                 ,const sf::Vector2u& window_size) const; // optional to override
     // @TODO: make one method for drawing debug tooltip, and then ask additional information as strings in virtual methods
     
     virtual void onMouseOverDraw(sf::RenderWindow& w, const sf::Font& f)
@@ -141,12 +148,14 @@ private:
     void onDraw(sf::RenderWindow& w);
     void updateAnimation();
     const sf::Texture& getNextTexture();
-    
+
     // Debugging methods, only called if DEBUG mode is on
     void drawDebugThings(sf::RenderWindow& w) const;
     void drawBoundingBox(sf::RenderWindow& w) const;
     void drawOrigin(sf::RenderWindow& w) const;
-    void onMouseOverDebugDraw(sf::RenderWindow& w, const sf::Font& f);
+    void onMouseOverDebugDraw(sf::RenderWindow& w
+                             ,const sf::Font& f
+                             ,const sf::Vector2u& window_size);
     
     const TextureList*                  textures; // Scene handles the memory of the pointers
     short unsigned                      currentFrameIndex = 0;
@@ -156,6 +165,7 @@ private:
     // The vector owns the pointers, i.e. when the gameobject is destroyed, the shared pointers are destroyed
     // @TODO: the list could be a list of AnimatedGameObjects
     std::vector<std::shared_ptr<sf::Shape>> childrenShapes;
+    std::vector<std::shared_ptr<sf::Text>> childrenTexts;
 };
 
 // @TODO: move derived utility classes to a separate file

@@ -1,0 +1,11 @@
+#define PROJECT_NAME "@PROJECT_NAME@"
+#define VERSION_MAJOR @PROJECT_VERSION_MAJOR@
+#define VERSION_MINOR @PROJECT_VERSION_MINOR@
+
+#if @IS_DEBUG_ON@ == 1
+#define DEBUG true
+#else
+#define DEBUG false
+#endif
+
+#define LOGFILE "@PROJECT_BINARY_DIR@/logfile.txt"

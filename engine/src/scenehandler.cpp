@@ -1,8 +1,8 @@
 #include "include/scenehandler.hpp"
+#include "config.hpp"
 
-SceneHandler::SceneHandler(const bool DEBUG)
-        :DEBUG                       (DEBUG)
-        ,nullStream                  (nullptr)
+SceneHandler::SceneHandler()
+        :nullStream                  (nullptr)
         ,os                          (&nullStream)
         ,logicPaused                 (false)
         ,drawSceneDebugThings        (true)
@@ -69,8 +69,8 @@ void SceneHandler::debugRun()
             _drawSceneHandlerDebugThings();
             scene->userEventHandler->drawDebugThings(window);
         }
-        window.display(); // window.display blocks if its framerate-limit is exceeded
         // @TODO: ¿event handling could run in a different thread?
+        window.display(); // window.display blocks if its framerate-limit is exceeded
         soundHandler.deletePlayedSounds();
         if(!logicPaused)
             scene->update();
@@ -131,6 +131,11 @@ void SceneHandler::decreaseUpdateFPS()
 void SceneHandler::_drawSceneHandlerDebugThings()
 {
     // e.g. draw FPS on screen
+}
+
+void SceneHandler::pauseLogic()
+{
+    if(DEBUG) logicPaused = !logicPaused;
 }
 
 

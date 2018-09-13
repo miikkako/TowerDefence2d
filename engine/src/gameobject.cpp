@@ -8,9 +8,9 @@ AnimatedGameObject::AnimatedGameObject(float x_pos
                                       ,short unsigned animation_tick_interval
                                       ,float rotation_angle_degrees
                                       ,bool centerize_origin)
-        :textures(t)
-        ,animationTickInterval(animation_tick_interval)
+        :animationTickInterval(animation_tick_interval)
         ,centerizeOrigin(centerize_origin)
+        ,textures(t)
 {
     sprite.setPosition(x_pos, y_pos);
     this->initializeAnimation();
@@ -22,13 +22,21 @@ AnimatedGameObject::AnimatedGameObject(sf::Vector2f pos
                                       ,short unsigned animation_tick_interval
                                       ,float rotation_angle_degrees
                                       ,bool centerize_origin)
-        :textures(t)
-        ,animationTickInterval(animation_tick_interval)
+        :animationTickInterval(animation_tick_interval)
         ,centerizeOrigin(centerize_origin)
+        ,textures(t)
 {
     sprite.setPosition(pos);
     this->initializeAnimation();
     sprite.setRotation(rotation_angle_degrees);
+}
+
+sf::Vector2f AnimatedGameObject::getCenterPosition() const
+{
+    if(!centerizeOrigin)
+        return sprite.getPosition();
+    sf::FloatRect rect = sprite.getLocalBounds();
+    return { rect.left + rect.width/2.0f, rect.top + rect.height/2.0f };
 }
 
 void AnimatedGameObject::addChildDrawable(std::shared_ptr<sf::Shape> obj)
@@ -43,6 +51,23 @@ void AnimatedGameObject::removeChildDrawable(sf::Shape* obj_ptr)
         if(iter->get() == obj_ptr)
         {
             iter = childrenShapes.erase(iter);
+            --iter;
+        }
+    }
+}
+
+void AnimatedGameObject::addChildText(std::shared_ptr<sf::Text> text)
+{
+    childrenTexts.push_back(text);
+}
+
+void AnimatedGameObject::removeChildText(sf::Text* text_ptr)
+{
+    for(auto iter = childrenTexts.begin(); iter != childrenTexts.end(); ++iter)
+    {
+        if(iter->get() == text_ptr)
+        {
+            iter = childrenTexts.erase(iter);
             --iter;
         }
     }
@@ -106,23 +131,37 @@ void AnimatedGameObject::drawOrigin(sf::RenderWindow& w) const
     w.draw(circle);
 }
 
-void AnimatedGameObject::onMouseOverDebugDraw(sf::RenderWindow& w ,const sf::Font& f)
+void AnimatedGameObject::onMouseOverDebugDraw(sf::RenderWindow& w
+                                             ,const sf::Font& f
+                                             ,const sf::Vector2u& window_size)
 {
-    drawDebugTooltip(w, f);
-    this->drawDebugTooltip(w, f);
+    drawDebugTooltip(w, f, window_size);
 }
 
-void AnimatedGameObject::drawDebugTooltip(sf::RenderWindow& w, const sf::Font& f) const
+void AnimatedGameObject::drawDebugTooltip(sf::RenderWindow& w
+                                         ,const sf::Font& f
+                                         ,const sf::Vector2u& window_size) const
 {
+    // @TODO move this to Tooltip-class
     // First create the tooltip box and draw it
     float tooltip_height(100), tooltip_width(150);
-    short unsigned font_size(12), line_spacing(font_size + 2);
+    unsigned font_size(12), line_spacing(font_size + 2);
     sf::RectangleShape tooltip_box(sf::Vector2f(tooltip_width, tooltip_height));
     tooltip_box.setFillColor(sf::Color(180,180,180));
     tooltip_box.setOutlineThickness(2);
     tooltip_box.setOutlineColor(sf::Color::Black);
     setShapeOriginToCenter(&tooltip_box);
-    tooltip_box.setPosition(sprite.getPosition().x, sprite.getPosition().y - tooltip_height);
+    // Figure out, in where to put the tooltip to, i.e. on top, below, right, or left
+    sf::Vector2f tooltip_pos(sprite.getPosition().x, sprite.getPosition().y - tooltip_height);
+    if(sprite.getPosition().x - (2 * tooltip_width) < 0)
+        tooltip_pos.x += tooltip_width;
+    else if(sprite.getPosition().x + (2 * tooltip_width) > window_size.x)
+        tooltip_pos.x -= tooltip_width;
+    if(sprite.getPosition().y - (2 * tooltip_height) < 0)
+        tooltip_pos.y += tooltip_height;
+    else if(sprite.getPosition().y + (2 * tooltip_height) > window_size.y)
+        tooltip_pos.y -= tooltip_height;
+    tooltip_box.setPosition(tooltip_pos);
     w.draw(tooltip_box);
     // Then create the tooltip text
     sf::Text text;
